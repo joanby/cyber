@@ -9,9 +9,9 @@ load_dotenv(override=True)
 
 MODEL = "gpt-4.1-mini"
 
-instructions = "You are a helpful assistant for an Airline called FlightAI. "
-instructions += "Use your tools to get ticket prices and calculate discounts. Trips to London have a 10% discount on the price. "
-instructions += "Always be accurate. If you don't know the answer, say so."
+instructions = "Eres un asistente útil para una aerolínea llamada FlightAI. "
+instructions += "Usa tus herramientas para obtener precios de boletos y calcular descuentos. Los viajes a Londres tienen un 10% de descuento en el precio. "
+instructions += "Sé siempre preciso. Si no sabes la respuesta, dilo."
 
 DB = "prices.db"
 initial_ticket_prices = {"london": 799, "paris": 899, "tokyo": 1400, "sydney": 2999}
@@ -27,31 +27,31 @@ with sqlite3.connect(DB) as conn:
 
 @function_tool
 def get_ticket_price(city: str) -> str:
-    """Get the price of a ticket to a given city.
+    """Obtiene el precio de un boleto a una ciudad dada.
 
     Args:
-        city: The city to get the price of a ticket to
+        city: La ciudad a la que se desea obtener el precio del boleto
     """
-    print(f"TOOL CALLED: Getting price for {city}", flush=True)
+    print(f"HERRAMIENTA INVOCADA: Obteniendo precio para {city}", flush=True)
     query = f"SELECT price FROM prices WHERE city = '{city.lower()}'"
     try:
         with sqlite3.connect(DB) as conn:
             cursor = conn.cursor()
             cursor.execute(query)
             result = cursor.fetchone()
-            return f"${result[0]}" if result else "Not found"
+            return f"${result[0]}" if result else "No encontrado"
     except Exception as e:
         return f"Error: {traceback.format_exc()}"
 
 
 @function_tool
 def calculate(expr: str) -> str:
-    """Evaluate a numeric expression - use this for example to make calculations about prices
+    """Evalúa una expresión numérica - usa esto, por ejemplo, para hacer cálculos sobre precios
 
     Args:
-        expr: The expression to evaluate
+        expr: La expresión a evaluar
     """
-    print(f"TOOL CALLED: Calculating {expr}", flush=True)
+    print(f"HERRAMIENTA INVOCADA: Calculando {expr}", flush=True)
     return str(eval(expr))
 
 

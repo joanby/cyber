@@ -1,61 +1,61 @@
-# Day 2 Part 2: Google Cloud Platform
+# Día 2 Parte 2: Google Cloud Platform
 
-This guide will deploy the Cybersecurity Analyzer to Google Cloud Run using Terraform. The deployment will automatically build your Docker image, push it to Google Container Registry, and deploy it as a serverless container application.
+Esta guía desplegará el Cybersecurity Analyzer en Google Cloud Run usando Terraform. El despliegue construirá automáticamente tu imagen de Docker, la subirá a Google Container Registry y la desplegará como una aplicación de contenedor sin servidor.
 
-## Prerequisites
+## Prerrequisitos
 
-✅ Complete the [GCP Setup Guide](./setup_gcp.md) first
-✅ Terraform CLI installed (covered in previous course modules)
-✅ Docker running locally
-✅ `.env` file in project root with your API keys
-✅ Note your GCP Project ID (e.g., `cyber-analyzer-123456`)
+✅ Completa primero la [Guía de configuración de GCP](./setup_gcp.md)
+✅ Terraform CLI instalado (cubierto en módulos previos del curso)
+✅ Docker ejecutándose localmente
+✅ Archivo `.env` en la raíz del proyecto con tus claves API
+✅ Ten a mano tu GCP Project ID (por ejemplo, `cyber-analyzer-123456`)
 
-## Quick Terraform Check
+## Comprobación rápida de Terraform
 
-If you missed the Terraform installation from previous modules:
+Si pasaste por alto la instalación de Terraform en módulos anteriores:
 
 ```bash
-# Check if Terraform is installed
+# Comprobar si Terraform está instalado
 terraform version
 
-# If not installed:
+# Si no está instalado:
 # Mac: brew install terraform
-# Windows: Download from https://terraform.io/downloads
-# Linux: See https://terraform.io/docs/cli/install/apt.html
+# Windows: Descargar desde https://terraform.io/downloads
+# Linux: Ver https://terraform.io/docs/cli/install/apt.html
 ```
 
 ---
 
-## Step 1: Get Your Project ID
+## Paso 1: Obtén tu Project ID
 
-You'll need your GCP Project ID (not the project name). Find it:
+Necesitarás tu GCP Project ID (no el nombre del proyecto). Encuéntralo así:
 
 ```bash
-# List your projects and their IDs
+# Lista tus proyectos y sus IDs
 gcloud projects list
 
-# Should show something like:
+# Debería mostrar algo como:
 # PROJECT_ID              NAME            PROJECT_NUMBER
 # cyber-analyzer-123456   cyber-analyzer  123456789012
 ```
 
-Copy your PROJECT_ID - you'll need it in the next steps.
+Copia tu PROJECT_ID, lo necesitarás en los siguientes pasos.
 
 ---
 
-## Step 2: Set Environment Variables
+## Paso 2: Configura las variables de entorno
 
-Terraform will read your API keys and project ID from environment variables. We'll load them from your `.env` file:
+Terraform leerá tus claves API y el project ID de las variables de entorno. Las cargaremos de tu archivo `.env`:
 
 ### Mac/Linux:
 ```bash
-# Load environment variables from .env file
+# Carga las variables de entorno desde el archivo .env
 export $(cat .env | xargs)
 
-# Set your GCP Project ID (replace with your actual ID)
+# Establece tu GCP Project ID (reemplaza por tu ID real)
 export TF_VAR_project_id="cyber-analyzer-123456"
 
-# Verify they're loaded
+# Verifica que estén cargadas
 echo "Project ID: $TF_VAR_project_id"
 echo "OpenAI key loaded: ${OPENAI_API_KEY:0:8}..."
 echo "Semgrep token loaded: ${SEMGREP_APP_TOKEN:0:8}..."
@@ -63,16 +63,16 @@ echo "Semgrep token loaded: ${SEMGREP_APP_TOKEN:0:8}..."
 
 ### Windows (PowerShell):
 ```powershell
-# Load environment variables from .env file
+# Carga las variables de entorno desde el archivo .env
 Get-Content .env | ForEach-Object {
     $name, $value = $_.split('=', 2)
     Set-Item -Path "env:$name" -Value $value
 }
 
-# Set your GCP Project ID (replace with your actual ID)
+# Establece tu GCP Project ID (reemplaza por tu ID real)
 $env:TF_VAR_project_id = "cyber-analyzer-123456"
 
-# Verify they're loaded
+# Verifica que estén cargadas
 Write-Host "Project ID: $env:TF_VAR_project_id"
 Write-Host "OpenAI key loaded: $($env:OPENAI_API_KEY.Substring(0,8))..."
 Write-Host "Semgrep token loaded: $($env:SEMGREP_APP_TOKEN.Substring(0,8))..."
@@ -80,180 +80,179 @@ Write-Host "Semgrep token loaded: $($env:SEMGREP_APP_TOKEN.Substring(0,8))..."
 
 ---
 
-## Step 3: Initialize Terraform
+## Paso 3: Inicializa Terraform
 
-Navigate to the GCP Terraform configuration:
+Navega hasta la configuración de Terraform de GCP:
 
 ```bash
 cd terraform/gcp
 ```
 
-Initialize Terraform and create a GCP workspace:
+Inicializa Terraform y crea un workspace de GCP:
 
 ```bash
-# Initialize Terraform
+# Inicializa Terraform
 terraform init
 
-# Create and select GCP workspace
+# Crea y selecciona el workspace de GCP
 terraform workspace new gcp
 terraform workspace select gcp
 
-# Verify you're in the right workspace
+# Verifica que estés en el workspace correcto
 terraform workspace show
 ```
 
-You should see output showing the Google provider being downloaded and the workspace set to `gcp`.
+Deberías ver que se descarga el proveedor de Google y que el workspace está establecido en `gcp`.
 
 ---
 
-## Step 4: Authenticate with Google Cloud
+## Paso 4: Autentícate con Google Cloud
 
-Ensure you're authenticated and have the right project selected:
+Asegúrate de estar autenticado y de haber seleccionado el proyecto correcto:
 
 ```bash
-# Login to Google Cloud (will open browser)
+# Inicia sesión en Google Cloud (se abrirá el navegador)
 gcloud auth login
 
-# Set your project
+# Selecciona tu proyecto
 gcloud config set project $TF_VAR_project_id
 
-# Get application default credentials for Terraform
+# Obtén credenciales por defecto para Terraform
 gcloud auth application-default login
 
-# Align the quota project (prevents warning messages)
+# Ajusta el proyecto de cuota (evita mensajes de advertencia)
 gcloud auth application-default set-quota-project $TF_VAR_project_id
 
-# Configure Docker to use gcloud credentials (required for pushing images)
+# Configura Docker para usar credenciales de gcloud (requerido para subir imágenes)
 gcloud auth configure-docker
 
-# Verify authentication
+# Verifica la autenticación
 gcloud config list
 ```
 
-Make sure the project shown matches your PROJECT_ID.
+Asegúrate de que el proyecto mostrado coincide con tu PROJECT_ID.
 
-> **Note**: When running `gcloud auth configure-docker`, you'll be asked to update your Docker config. Type 'Y' to confirm.
+> **Nota**: Al ejecutar `gcloud auth configure-docker`, se te pedirá actualizar la configuración de Docker. Escribe ‘Y’ para confirmar.
 
 ---
 
-## Step 5: Deploy to Cloud Run
+## Paso 5: Despliega en Cloud Run
 
-Now let's deploy everything with a single command:
+Ahora desplegaremos todo con un solo comando:
 
-On a Mac/Linux:
+En Mac/Linux:
 
 ```bash
-# Plan the deployment (see what will be created)
+# Previsualiza el despliegue (muestra lo que se va a crear)
 terraform plan \
   -var="openai_api_key=$OPENAI_API_KEY" \
   -var="semgrep_app_token=$SEMGREP_APP_TOKEN"
 ```
 
-On PC:
+En PC:
 
 ```powershell
 terraform plan -var ("openai_api_key=" + $Env:OPENAI_API_KEY) -var ("semgrep_app_token=" + $Env:SEMGREP_APP_TOKEN)
 ```
 
+Revisa la salida del plan. Deberías ver:
+- ✅ Habilitado Cloud Run API
+- ✅ Habilitado Container Registry API
+- ✅ Habilitado Cloud Build API
+- ✅ Imagen de Docker construida y subida
+- ✅ Despliegue del servicio Cloud Run
+- ✅ Política IAM de acceso público
 
-Review the plan output. You should see:
-- ✅ Enable Cloud Run API
-- ✅ Enable Container Registry API
-- ✅ Enable Cloud Build API
-- ✅ Docker image build and push
-- ✅ Cloud Run service deployment
-- ✅ Public access IAM policy
+Si todo se ve bien, aplica los cambios:
 
-If everything looks good, apply the changes:
-
-On a Mac/Linux:
+En Mac/Linux:
 
 ```bash
-# Deploy everything
+# Despliega todo
 terraform apply \
   -var="openai_api_key=$OPENAI_API_KEY" \
   -var="semgrep_app_token=$SEMGREP_APP_TOKEN"
 ```
 
-On a PC:
+En PC:
 
 ```powershell
 terraform apply -var ("openai_api_key=" + $Env:OPENAI_API_KEY) -var ("semgrep_app_token=" + $Env:SEMGREP_APP_TOKEN)
 ```
 
+Escribe `yes` cuando se te pida. Esto tardará 5–10 minutos mientras:
+1. Habilita las APIs necesarias de Google Cloud
+2. Construye tu imagen de Docker localmente
+3. Sube la imagen a Google Container Registry
+4. Despliega el servicio en Cloud Run
+5. Configura acceso público
 
-Type `yes` when prompted. This will take 5-10 minutes as it:
-1. Enables required Google Cloud APIs
-2. Builds your Docker image locally
-3. Pushes the image to Google Container Registry
-4. Deploys the Cloud Run service
-5. Configures public access
-
-**Important**: If you make code changes and redeploy, Terraform may not detect the changes automatically. If your updates don't appear, force a rebuild:
+**Importante**: Si haces cambios en el código y vuelves a desplegar, Terraform puede que no detecte automáticamente los cambios. Si tus actualizaciones no aparecen, fuerza la reconstrucción:
 
 ```bash
-# Force rebuild of Docker image when code changes
+# Fuerza la reconstrucción de la imagen de Docker al cambiar el código
 terraform taint docker_image.app
 terraform taint docker_registry_image.app
 
-# Then redeploy using the commands from the prior step
+# Luego vuelve a desplegar usando los comandos de arriba
+```
 ---
 
-## Step 6: Get Your Application URL
+## Paso 6: Obtén la URL de tu aplicación
 
-Once deployment completes, Terraform will output your application URL:
+Cuando termine el despliegue, Terraform mostrará la URL de tu aplicación:
 
 ```bash
-# Get the application URL
+# Obtén la URL de la aplicación
 terraform output service_url
 ```
 
-You should see something like:
+Deberías ver algo como:
 ```
 "https://cyber-analyzer-abcdef123-uc.a.run.app"
 ```
 
-🎉 **Your application is now live!** Visit the URL to test it.
+🎉 **¡Tu aplicación ya está en línea!** Visita la URL para probarla.
 
-> **Note for Google Workspace users**: If you get an error about organization policies blocking "allUsers", see [Google Workspace Restrictions](#google-workspace-restrictions) at the end of this guide.
+> **Nota para usuarios de Google Workspace**: Si obtienes un error sobre políticas de organización bloqueando "allUsers", revisa [Restricciones de Google Workspace](#google-workspace-restrictions) al final de esta guía.
 
 ---
 
-## Step 7: Verify Deployment
+## Paso 7: Verifica el despliegue
 
-### Test the Application
-1. Open the URL from Step 6 in your browser
-2. You should see the Cybersecurity Analyzer interface
-3. Try uploading a Python file to verify it works end-to-end
+### Prueba la aplicación
+1. Abre la URL del paso 6 en tu navegador
+2. Deberías ver la interfaz de Cybersecurity Analyzer
+3. Intenta subir un archivo Python para verificar que funciona de extremo a extremo
 
-### Check Google Cloud Console
-In the Cloud Console (https://console.cloud.google.com):
-1. Select your project from the dropdown
-2. Navigate to **Cloud Run** in the menu
-3. You should see your `cyber-analyzer` service
-4. Click on it to see metrics, logs, and configuration
+### Comprueba en la Consola de Google Cloud
+En la consola (https://console.cloud.google.com):
+1. Selecciona tu proyecto en el desplegable
+2. Ve a **Cloud Run** en el menú
+3. Deberías ver tu servicio `cyber-analyzer`
+4. Haz clic sobre él para ver métricas, logs y configuración
 
-### Monitor Logs
+### Monitorea los logs
 ```bash
-# View application logs
+# Ver logs de la aplicación
 gcloud run services logs read cyber-analyzer \
   --limit=50 \
   --region=$TF_VAR_region
 
-# Stream logs in real-time
+# Ver logs en tiempo real
 gcloud alpha run services logs tail cyber-analyzer \
   --region=$TF_VAR_region
 ```
 
 ---
 
-## Step 8: Clean Up Resources (Important!)
+## Paso 8: Limpia los recursos (¡Importante!)
 
-When you're done experimenting with GCP deployment, it's crucial to destroy all resources to avoid ongoing charges. Cloud Run has minimal idle costs, but Container Registry storage and any active traffic will incur charges.
+Cuando termines de experimentar con el despliegue en GCP, es fundamental destruir todos los recursos para evitar costes continuos. Cloud Run tiene costes mínimos en reposo, pero el almacenamiento en Container Registry y el tráfico activo pueden generar cargos.
 
-### Destroy All GCP Resources
+### Elimina todos los recursos de GCP
 
-Run this command from the `terraform/gcp` directory (all on one line):
+Ejecuta este comando desde el directorio `terraform/gcp` (todo en una sola línea):
 
 Mac/Linux:
 
@@ -263,240 +262,239 @@ terraform destroy -var="openai_api_key=$OPENAI_API_KEY" -var="semgrep_app_token=
 
 PC:
 
-
 ```powershell
 terraform destroy -var ("openai_api_key=" + $Env:OPENAI_API_KEY) -var ("semgrep_app_token=" + $Env:SEMGREP_APP_TOKEN)
 ```
 
-Terraform will show you what will be destroyed. Review the list and type `yes` when prompted.
+Terraform mostrará lo que se eliminará. Revisa la lista y escribe `yes` cuando se te pida.
 
-This will remove:
-- The Cloud Run service (cyber-analyzer)
-- The Docker image from Container Registry
-- All associated IAM policies and configurations
+Esto eliminará:
+- El servicio Cloud Run (cyber-analyzer)
+- La imagen de Docker en Container Registry
+- Todas las políticas IAM y configuraciones asociadas
 
-### Verify Cleanup in Console
+### Verifica la limpieza en la consola
 
-After destruction completes, verify everything is cleaned up:
+Cuando termine la destrucción, verifica que todo se haya eliminado:
 
-1. **In Google Cloud Console** (https://console.cloud.google.com):
-   - Navigate to **Cloud Run** in the menu
-   - Your `cyber-analyzer` service should be gone
-   - Navigate to **Container Registry** → **Images**
-   - The `cyber-analyzer` image should be removed
+1. **En Google Cloud Console** (https://console.cloud.google.com):
+   - Ve a **Cloud Run** en el menú
+   - Tu servicio `cyber-analyzer` ya no debería aparecer
+   - Ve a **Container Registry** → **Imágenes**
+   - La imagen `cyber-analyzer` debe estar eliminada
 
-2. **Via CLI**:
+2. **Por CLI**:
 ```bash
-# Check Cloud Run services (should be empty or not show cyber-analyzer)
+# Verifica servicios Cloud Run (debería estar vacío o no mostrar cyber-analyzer)
 gcloud run services list --region=us-central1
 
-# Check Container Registry images (should not show cyber-analyzer)
+# Verifica imágenes en Container Registry (no debe aparecer cyber-analyzer)
 gcloud container images list
 ```
 
-3. **Double-check specific resources**:
+3. **Comprueba recursos específicos**:
 ```bash
-# This should return an error saying the service doesn't exist
+# Esto debería devolver un error indicando que el servicio no existe
 gcloud run services describe cyber-analyzer --region=us-central1
 ```
 
-### Optional: Clean Up Remaining Registry Storage
+### Opcional: Limpia el almacenamiento que quede en el registro
 
-If any container images remain in the registry:
+Si aún quedan imágenes en el registro:
 
 ```bash
-# List all images
+# Lista todas las imágenes
 gcloud container images list
 
-# Delete specific image if it still exists
+# Elimina una imagen específica si todavía existe
 gcloud container images delete gcr.io/$TF_VAR_project_id/cyber-analyzer --quiet --force-delete-tags
 ```
 
-**💡 Pro Tip**: Always run `terraform destroy` at the end of each lab session. You can easily redeploy later with `terraform apply` when you need it again. Cloud Run charges are minimal when idle, but it's good practice to clean up learning resources.
+**💡 Consejo**: Ejecuta siempre `terraform destroy` al terminar cada laboratorio. Puedes volver a desplegar fácilmente con `terraform apply` cuando lo necesites. Cloud Run cobra muy poco en reposo, pero es buena práctica limpiar los recursos de aprendizaje.
 
 ---
 
-## Understanding What Was Created
+## Comprendiendo lo que se ha creado
 
-### Cost Breakdown (mostly free tier):
-- **Cloud Run**: 2 million requests/month free, then ~$0.40 per million
-- **Container Registry**: 0.5GB free storage, then ~$0.05/GB/month
-- **Outbound Traffic**: 1GB/month free to North America
-- **Total estimated cost**: < $1/month for learning
+### Desglose de costes (mayormente en capa gratuita):
+- **Cloud Run**: 2 millones de peticiones/mes gratis, luego ~$0.40 por millón
+- **Container Registry**: 0.5GB de almacenamiento gratis, luego ~$0.05/GB/mes
+- **Tráfico saliente**: 1GB/mes gratis a Norteamérica
+- **Coste total estimado**: < 1$/mes para aprendizaje
 
-### Architecture:
+### Arquitectura:
 ```
-Internet → Cloud Run Service → Your Docker Image
+Internet → Cloud Run Service → Tu imagen Docker
               ↓
      Google Container Registry
-          (image storage)
+          (almacenamiento de imágenes)
 ```
 
-### Resource Configuration:
-- **CPU**: 1 vCPU (required for Semgrep processing)
-- **Memory**: 2Gi (required for Semgrep rule registry loading)
-- **Important**: Lower memory settings will cause Semgrep to fail with SIGKILL
+### Configuración de recursos:
+- **CPU**: 1 vCPU (requerido para el procesamiento de Semgrep)
+- **Memoria**: 2Gi (requerido para la carga del registro de reglas de Semgrep)
+- **Importante**: Configurar menos memoria provocará que Semgrep falle con SIGKILL
 
-### Scaling:
-- **Min instances**: 0 (true scale to zero = $0 when idle)
-- **Max instances**: 1 (keeps costs minimal)
-- **Auto-scaling**: Based on concurrent requests
-- **Cold start**: ~5-10 seconds on first request after idle
+### Escalado:
+- **Instancias mínimas**: 0 (escala real a cero = $0 en reposo)
+- **Instancias máximas**: 1 (mantiene costes mínimos)
+- **Autoscaling**: Según peticiones concurrentes
+- **Arranque en frío**: ~5-10 segundos tras estar inactivo
 
 ---
 
-## Managing Your Deployment
+## Gestión de tu despliegue
 
-### View Infrastructure State
+### Ver el estado de la infraestructura
 ```bash
-# See what's deployed
+# Ver lo que está desplegado
 terraform show
 
-# List all resources
+# Listar todos los recursos
 terraform state list
 ```
 
-### Update the Application
-After making code changes:
+### Actualizar la aplicación
+Después de hacer cambios en el código:
 
 ```bash
-# Rebuild and redeploy with a new tag
+# Reconstruye y vuelve a desplegar con una nueva etiqueta
 terraform apply \
   -var="openai_api_key=$OPENAI_API_KEY" \
   -var="semgrep_app_token=$SEMGREP_APP_TOKEN" \
   -var="docker_image_tag=v2"
 ```
 
-### View Service Details
+### Ver detalles del servicio
 ```bash
-# Get service information
+# Obtener información del servicio
 gcloud run services describe cyber-analyzer \
   --region=$TF_VAR_region
 
-# List all revisions
+# Listar todas las revisiones
 gcloud run revisions list \
   --service=cyber-analyzer \
   --region=$TF_VAR_region
 ```
 
-### Clean Up (Important for Cost Management!)
-When you're done with the lab:
+### Limpieza (¡Importante para el control de costes!)
+Cuando termines con el laboratorio:
 
 ```bash
-# Destroy all resources
+# Elimina todos los recursos
 terraform destroy \
   -var="openai_api_key=$OPENAI_API_KEY" \
   -var="semgrep_app_token=$SEMGREP_APP_TOKEN"
 ```
 
-Type `yes` to confirm. This removes everything and stops all charges.
+Escribe `yes` para confirmar. Esto elimina todo y detiene cualquier cargo.
 
-**Also clean up Container Registry images:**
+**También limpia imágenes del Container Registry:**
 ```bash
-# List images
+# Lista de imágenes
 gcloud container images list
 
-# Delete the image (optional, but saves storage costs)
+# Borra la imagen (opcional, ahorra en costes de almacenamiento)
 gcloud container images delete gcr.io/$TF_VAR_project_id/cyber-analyzer --quiet
 ```
 
 ---
 
-## Troubleshooting
+## Resolución de problemas
 
-### "Failed to build Docker image"
-- Make sure Docker is running: `docker ps`
-- Ensure you're in the correct directory: `terraform/gcp`
-- Check Docker has enough disk space: `docker system df`
+### "Failed to build Docker image" (Fallo al construir la imagen de Docker)
+- Asegúrate de que Docker está en marcha: `docker ps`
+- Verifica que estás en el directorio correcto: `terraform/gcp`
+- Comprueba que Docker tiene suficiente espacio en disco: `docker system df`
 
-### "Permission denied" or API errors
+### "Permission denied" o errores de API
 ```bash
-# Re-authenticate
+# Vuelve a autenticarte
 gcloud auth application-default login
 
-# Ensure APIs are enabled
+# Verifica que las APIs están habilitadas
 gcloud services enable run.googleapis.com
 gcloud services enable containerregistry.googleapis.com
 gcloud services enable cloudbuild.googleapis.com
 ```
 
-### "Project not found"
-- Verify project ID: `gcloud projects list`
-- Ensure TF_VAR_project_id is set correctly
-- Check you're in the right project: `gcloud config get-value project`
+### "Project not found" (Proyecto no encontrado)
+- Verifica el project ID: `gcloud projects list`
+- Asegúrate de que TF_VAR_project_id está bien configurada
+- Comprueba que estás en el proyecto correcto: `gcloud config get-value project`
 
-### "Environment variables not set"
-- Re-run the environment variable commands from Step 2
-- Check `.env` file exists and has correct format
-- On Windows, ensure you're using PowerShell (not Command Prompt)
+### "Environment variables not set" (Variables de entorno no configuradas)
+- Repite los comandos de configuración de variables de entorno del Paso 2
+- Comprueba que el archivo `.env` existe y tiene el formato correcto
+- En Windows, asegúrate de estar usando PowerShell (no Command Prompt)
 
-### Application returns 503 or doesn't load
-- Cloud Run has cold starts - wait 10-15 seconds on first access
-- Check logs: `gcloud run services logs read cyber-analyzer --limit=50`
-- Verify the service is deployed: `gcloud run services list`
+### La aplicación devuelve 503 o no carga
+- Cloud Run puede tener arranques en frío – espera 10-15 segundos en el primer acceso
+- Revisa los logs: `gcloud run services logs read cyber-analyzer --limit=50`
+- Verifica que el servicio está desplegado: `gcloud run services list`
 
-### Docker push failures
+### Fallos al subir imágenes a Docker
 ```bash
-# Configure Docker to use gcloud credentials
+# Configura Docker para usar credenciales de gcloud
 gcloud auth configure-docker
 
-# Retry the deployment
+# Reintenta el despliegue
 terraform apply -var="openai_api_key=$OPENAI_API_KEY" -var="semgrep_app_token=$SEMGREP_APP_TOKEN"
 ```
 
 ---
 
-## Comparing Azure vs GCP
+## Comparando Azure vs GCP
 
-### Similarities:
-- Both offer serverless container platforms
-- Both scale to zero (though Cloud Run is faster)
-- Both use similar Terraform patterns
-- Both require 2GB RAM for Semgrep
+### Similitudes:
+- Ambos ofrecen plataformas de contenedores serverless
+- Ambos escalan a cero (Cloud Run es más rápido)
+- Ambos usan patrones Terraform similares
+- Ambos requieren 2GB RAM para Semgrep
 
-### Key Differences:
+### Diferencias clave:
 
-| Feature | Azure Container Apps | Google Cloud Run |
-|---------|---------------------|------------------|
-| Cold Start | ~30 seconds | ~5-10 seconds |
-| True Scale to Zero | Sort of (background processes) | Yes (completely stops) |
-| Pricing Model | Per vCPU/Memory allocated | Per request + compute time |
-| Container Registry | Separate service (ACR) | Integrated (GCR) |
-| URL Format | Long subdomain | Shorter, cleaner |
-| Free Tier | Limited | Generous (2M requests) |
+| Característica | Azure Container Apps | Google Cloud Run |
+|----------------|---------------------|------------------|
+| Arranque en frío | ~30 segundos | ~5-10 segundos |
+| Escala real a cero | Algo (procesos en segundo plano) | Sí (se detiene por completo) |
+| Modelo de precios | Por vCPU/Memoria asignada | Por petición + tiempo de cómputo |
+| Container Registry | Servicio separado (ACR) | Integrado (GCR) |
+| Formato URL | Subdominio largo | Más corto y limpio |
+| Capa gratuita | Limitada | Generosa (2M peticiones) |
 
-### Which is Better?
-- **For learning**: Cloud Run (better free tier)
-- **For production**: Depends on your workload
-- **For this course**: Both! Compare and learn
-
----
-
-## Next Steps
-
-🎉 **Congratulations!** You've successfully deployed to both Azure and GCP!
-
-**What you've learned:**
-- Google Cloud Run for serverless containers
-- Google Container Registry for image storage
-- Cross-platform cloud deployment patterns
-- Terraform for multi-cloud infrastructure
-- Cost optimization strategies
-
-**Skills gained:**
-- Multi-cloud deployment experience
-- Infrastructure as Code with Terraform
-- Container registry management
-- Environment variable handling
-- Cloud cost management
-
-Keep both deployments for comparison, but remember to clean up when done to avoid charges!
+### ¿Cuál es mejor?
+- **Para aprender**: Cloud Run (mejor capa gratuita)
+- **Para producción**: Depende de tu carga de trabajo
+- **En este curso**: ¡Ambas! Compáralas y aprende
 
 ---
 
-## Google Workspace Restrictions
+## Siguientes pasos
 
-If you're using a Google Workspace account (custom domain email) instead of a personal Gmail account, you may encounter an error when Terraform tries to make your Cloud Run service publicly accessible:
+🎉 **¡Enhorabuena!** Has desplegado correctamente en Azure y en GCP.
+
+**Has aprendido:**
+- Google Cloud Run para contenedores serverless
+- Google Container Registry para almacenamiento de imágenes
+- Patrones de despliegue multiplataforma en la nube
+- Terraform para infraestructura multinube
+- Estrategias de optimización de costes
+
+**Habilidades adquiridas:**
+- Experiencia con despliegues multinube
+- Infraestructura como código con Terraform
+- Gestión de registros de contenedores
+- Manejo de variables de entorno
+- Gestión de costes en la nube
+
+Conserva ambos despliegues para comparar, pero recuerda limpiar al terminar para evitar costes.
+
+---
+
+## Restricciones de Google Workspace
+
+Si usas una cuenta de Google Workspace (correo de dominio propio) en lugar de una Gmail personal, puedes encontrar un error cuando Terraform intente hacer que tu servicio Cloud Run sea público:
 
 ```
 Error: Error applying IAM policy for cloudrun service...
@@ -504,63 +502,63 @@ One or more users named in the policy do not belong to a permitted customer,
 perhaps due to an organization policy.
 ```
 
-This happens because Google Workspace organizations often have domain-restricted sharing policies for security. Here's how to fix it:
+Esto sucede porque las organizaciones de Google Workspace suelen tener políticas de compartición restringidas por dominio por seguridad. Así es cómo solucionarlo:
 
-### Option 1: Request Organization Policy Exception (Recommended)
+### Opción 1: Solicitar una excepción en la política de organización (Recomendado)
 
-If you have admin access to your Google Workspace:
+Si tienes acceso de administrador en Google Workspace:
 
-1. **Check your current role**:
+1. **Comprueba tu rol actual**:
 ```bash
 gcloud organizations list
 gcloud organizations get-iam-policy YOUR_ORG_ID | grep -A5 "YOUR_EMAIL"
 ```
 
-2. **Grant yourself Organization Policy Administrator** (if needed):
+2. **Concede a tu usuario el rol Organization Policy Administrator** (si es necesario):
 ```bash
 gcloud organizations add-iam-policy-binding YOUR_ORG_ID \
   --member="user:YOUR_EMAIL" \
   --role="roles/orgpolicy.policyAdmin"
 ```
 
-3. **Modify the policy in GCP Console**:
-   - Go to https://console.cloud.google.com
-   - Switch from your organization to your specific project (top-left dropdown)
-   - Navigate to **IAM & Admin** → **Organization Policies**
-   - Find **"Domain restricted sharing"** (constraints/iam.allowedPolicyMemberDomains)
-   - Click **"MANAGE POLICY"**
-   - Add a rule with **"Allow All"** for your project
-   - Save the changes
+3. **Modifica la política en la consola de GCP**:
+   - Ve a https://console.cloud.google.com
+   - Cambia de tu organización a tu proyecto específico (desplegable arriba a la izquierda)
+   - Navega a **IAM & Admin** → **Organization Policies**
+   - Busca **"Domain restricted sharing"** (constraints/iam.allowedPolicyMemberDomains)
+   - Haz clic en **"MANAGE POLICY"**
+   - Añade una regla con **"Allow All"** para tu proyecto
+   - Guarda los cambios
 
-4. **Re-run Terraform**:
+4. **Vuelve a ejecutar Terraform**:
 ```bash
 terraform apply \
   -var="openai_api_key=$OPENAI_API_KEY" \
   -var="semgrep_app_token=$SEMGREP_APP_TOKEN"
 ```
 
-### Option 2: Contact Your Admin
+### Opción 2: Contacta con tu administrador
 
-If you don't have admin access:
-1. Contact your Google Workspace administrator
-2. Request an exception for your cyber-analyzer project
-3. They need to allow "allUsers" for Cloud Run services in your project
+Si no tienes acceso de admin:
+1. Contacta con el administrador de Google Workspace
+2. Solicita una excepción para tu proyecto cyber-analyzer
+3. Deben permitir "allUsers" para servicios Cloud Run en tu proyecto
 
-### Option 3: Use Authenticated Access (Workaround)
+### Opción 3: Usa acceso autenticado (alternativa)
 
-If you can't modify the policy, you can still access your deployed service:
+Si no puedes modificar la política, aún puedes acceder a tu servicio desplegado:
 
 ```bash
-# This creates a local proxy to your Cloud Run service
+# Esto crea un proxy local a tu servicio Cloud Run
 gcloud run services proxy cyber-analyzer --region=us-central1
 ```
 
-Then visit http://localhost:8080 in your browser.
+Luego visita http://localhost:8080 en tu navegador.
 
-### Why This Happens
+### Por qué ocurre esto
 
-- **Personal Gmail accounts**: No organization = no restrictions
-- **Google Workspace accounts**: Organization policies enforce security by default
-- **The fix**: Create a project-specific exception while keeping the organization secure
+- **Cuentas personales de Gmail**: No hay organización = sin restricciones
+- **Cuentas de Google Workspace**: Las políticas de la organización regulan la seguridad por defecto
+- **La solución**: Crear una excepción específica de proyecto manteniendo la seguridad de la organización
 
-This is a one-time setup. Once configured, all future deployments to this project will work normally.
+Esto se configura una sola vez. Una vez hecho, todos los futuros despliegues a este proyecto funcionarán normalmente.

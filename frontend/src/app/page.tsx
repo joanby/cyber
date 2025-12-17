@@ -5,8 +5,8 @@ import { AnalysisResponse } from '@/types/security';
 import CodeInput from '@/components/CodeInput';
 import AnalysisResults from '@/components/AnalysisResults';
 
-// Force relative URLs in production builds
-// Only use localhost when explicitly running in development mode
+// Forzar URLs relativas en builds de producción
+// Usar localhost solo cuando se esté ejecutando explícitamente en modo desarrollo
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
   (process.env.NODE_ENV === 'development' && typeof window !== 'undefined' && window.location?.hostname === 'localhost' 
     ? 'http://localhost:8000' 
@@ -14,7 +14,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ||
 
 
 /**
- * Main application page for cybersecurity code analysis
+ * Página principal de la aplicación para análisis de código en ciberseguridad
  */
 export default function Home() {
   const [codeContent, setCodeContent] = useState('');
@@ -36,13 +36,13 @@ export default function Home() {
       };
       reader.readAsText(file);
     } else {
-      alert('Please select a Python (.py) file');
+      alert('Por favor selecciona un archivo de Python (.py)');
     }
   };
 
   const handleAnalyzeCode = async () => {
     if (!codeContent) {
-      alert('Please upload a Python file first');
+      alert('Por favor sube primero un archivo de Python');
       return;
     }
 
@@ -59,13 +59,13 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Error HTTP! estado: ${response.status}`);
       }
 
       const results: AnalysisResponse = await response.json();
       setAnalysisResults(results);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during analysis');
+      setError(err instanceof Error ? err.message : 'Ocurrió un error durante el análisis');
     } finally {
       setIsAnalyzing(false);
     }
@@ -75,8 +75,8 @@ export default function Home() {
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Cybersecurity Analyst</h1>
-          <p className="text-accent mt-2">Python code analysis tool for security assessment</p>
+          <h1 className="text-3xl font-bold text-foreground">Analista de Ciberseguridad</h1>
+          <p className="text-accent mt-2">Herramienta de análisis de código Python para evaluación de seguridad</p>
         </header>
 
         <div className="grid grid-rows-2 gap-6 h-[calc(100vh-200px)]">

@@ -1,215 +1,215 @@
-# Day 1 Part 1: Azure Setup Guide
+# Día 1 Parte 1: Guía de Configuración de Azure
 
-This guide will walk you through setting up your Azure account and preparing it for deploying containerized applications. All instructions work for both Windows and Mac users.
+Esta guía te mostrará cómo configurar tu cuenta de Azure y prepararla para desplegar aplicaciones contenerizadas. Todas las instrucciones funcionan tanto para usuarios de Windows como de Mac.
 
 
-## Table of Contents
-1. [Creating Your Azure Account](#creating-your-azure-account)
-2. [Understanding Azure's Structure](#understanding-azures-structure)
-3. [Setting Up Cost Management](#setting-up-cost-management)
-4. [Creating Your First Resource Group](#creating-your-first-resource-group)
-5. [Installing Azure CLI](#installing-azure-cli)
-6. [Verifying Your Setup](#verifying-your-setup)
-
----
-
-## Creating Your Azure Account
-
-### Azure Free Account
-1. Navigate to https://azure.microsoft.com/en-us/free/
-2. Click **"Start free"**
-3. Sign in with your Microsoft account (or create one)
-4. You'll need to provide:
-   - A credit card (for identity verification - you won't be charged)
-   - Phone number for verification
-5. You'll receive:
-   - $200 credit for 30 days
-   - 12 months of popular free services
-   - Always free services
-
-> **Note**: If you have a .edu email address, you may qualify for Azure for Students which provides $100 credit over 12 months without requiring a credit card. Visit https://azure.microsoft.com/en-us/free/students/ for details.
-
-⚠️ **Important**: After creating your account, you'll be redirected to the Azure Portal at https://portal.azure.com
+## Tabla de Contenidos
+1. [Creando tu Cuenta de Azure](#creating-your-azure-account)
+2. [Entendiendo la Estructura de Azure](#understanding-azures-structure)
+3. [Configurando la Administración de Costos](#setting-up-cost-management)
+4. [Creando tu Primer Grupo de Recursos](#creating-your-first-resource-group)
+5. [Instalando Azure CLI](#installing-azure-cli)
+6. [Verificando tu Configuración](#verifying-your-setup)
 
 ---
 
-## Understanding Azure's Structure
+## Creando tu Cuenta de Azure
 
-Before we create resources, let's understand Azure's hierarchy:
+### Cuenta gratuita de Azure
+1. Navega a https://azure.microsoft.com/en-us/free/
+2. Haz clic en **"Start free"**
+3. Inicia sesión con tu cuenta de Microsoft (o crea una)
+4. Necesitarás proporcionar:
+   - Una tarjeta de crédito (solo para verificación de identidad - no se te cobrará)
+   - Número de teléfono para verificación
+5. Recibirás:
+   - $200 de crédito para 30 días
+   - 12 meses de servicios populares gratuitos
+   - Servicios siempre gratuitos
+
+> **Nota**: Si tienes una dirección de correo .edu, podrías calificar para Azure for Students, que ofrece $100 de crédito por 12 meses sin necesidad de tarjeta de crédito. Visita https://azure.microsoft.com/en-us/free/students/ para más detalles.
+
+⚠️ **Importante**: Después de crear tu cuenta, serás redirigido al Portal de Azure en https://portal.azure.com
+
+---
+
+## Entendiendo la Estructura de Azure
+
+Antes de crear recursos, vamos a entender la jerarquía de Azure:
 
 ```
-Azure Account (Your Email)
-  └── Subscription (e.g., "Azure for Students")
-      └── Resource Group (e.g., "cyber-analyzer-rg")
+Azure Account (Tu correo)
+  └── Subscription (ej: "Azure for Students")
+      └── Resource Group (ej: "cyber-analyzer-rg")
           └── Resources (Container Apps, Registry, etc.)
 ```
 
-Think of:
-- **Subscription**: Your billing boundary (like a credit card)
-- **Resource Group**: A folder to organize related resources
-- **Resources**: The actual services you create
+Piensa en:
+- **Subscription**: Tu límite de facturación (como una tarjeta de crédito)
+- **Resource Group**: Una carpeta para organizar recursos relacionados
+- **Resources**: Los servicios reales que creas
 
 ---
 
-## Setting Up Cost Management
+## Configurando la Administración de Costos
 
-Let's set up a budget alert to avoid surprises:
+Vamos a configurar una alerta de presupuesto para evitar sorpresas:
 
-1. In the Azure Portal (https://portal.azure.com), use the search bar at the top
-2. Type **"Cost Management"** and select **"Cost Management + Billing"**
-3. In the left menu, click **"Cost Management"**
-4. Click **"Budgets"**
-5. Click **"+ Add"**
-6. Configure your budget:
+1. En el Portal de Azure (https://portal.azure.com), usa la barra de búsqueda en la parte superior
+2. Escribe **"Cost Management"** y selecciona **"Cost Management + Billing"**
+3. En el menú de la izquierda, haz clic en **"Cost Management"**
+4. Haz clic en **"Budgets"**
+5. Haz clic en **"+ Add"**
+6. Configura tu presupuesto:
    - **Name**: `Monthly-Training-Budget`
    - **Reset period**: Monthly
-   - **Budget amount**: `10` (keep costs minimal)
-   - Click **"Next"**
-7. Set up alerts:
-   - **Alert conditions**: 
-     - 50% of budget → Email alert
-     - 80% of budget → Email alert
-     - 100% of budget → Email alert
-   - Enter your email address
-   - Click **"Create"**
+   - **Budget amount**: `10` (mantén los costes mínimos)
+   - Haz clic en **"Next"**
+7. Configura alertas:
+   - **Alert conditions**:
+     - 50% del presupuesto → Alerta por email
+     - 80% del presupuesto → Alerta por email
+     - 100% del presupuesto → Alerta por email
+   - Ingresa tu correo electrónico
+   - Haz clic en **"Create"**
 
-✅ Now you'll get email alerts before spending too much!
+✅ ¡Ahora recibirás alertas por email antes de gastar demasiado!
 
 ---
 
-## Creating Your First Resource Group
+## Creando tu Primer Grupo de Recursos
 
-Resource groups organize your Azure resources. Let's create one:
+Los grupos de recursos organizan tus recursos de Azure. Vamos a crear uno:
 
-1. In the Azure Portal, click the **"☰"** menu icon (top-left)
-2. Select **"Resource groups"**
-3. Click **"+ Create"**
-4. Fill in the details:
-   - **Subscription**: Select your subscription
+1. En el Portal de Azure, haz clic en el icono de menú **"☰"** (arriba a la izquierda)
+2. Selecciona **"Resource groups"**
+3. Haz clic en **"+ Create"**
+4. Rellena los detalles:
+   - **Subscription**: Selecciona tu suscripción
    - **Resource group**: `cyber-analyzer-rg`
-   - **Region**: Choose one close to you:
-     - US: `East US` or `West US 2`
-     - Europe: `West Europe` or `North Europe`
-     - Asia: `Southeast Asia` or `Japan East`
+   - **Region**: Elige una cercana a ti:
+     - US: `East US` o `West US 2`
+     - Europa: `West Europe` o `North Europe`
+     - Asia: `Southeast Asia` o `Japan East`
    
-   💡 **Pro tip**: Remember this region! All resources in this group should use the same region for best performance and lowest cost.
+   💡 **Consejo profesional**: ¡Recuerda esta región! Todos los recursos en este grupo deberían usar la misma región para mejor rendimiento y menor costo.
 
-5. Click **"Review + create"**
-6. Click **"Create"**
+5. Haz clic en **"Review + create"**
+6. Haz clic en **"Create"**
 
-🎉 You've created your first resource group!
+🎉 ¡Has creado tu primer grupo de recursos!
 
 ---
 
-## Installing Azure CLI
+## Instalando Azure CLI
 
-The Azure CLI is essential for deployment operations and working with containerized applications.
+La Azure CLI es esencial para operaciones de despliegue y trabajar con aplicaciones contenerizadas.
 
-### Windows Users
-1. Download the MSI installer from: https://aka.ms/installazurecliwindows
-2. Run the downloaded file and follow the installation wizard
-3. Restart any open terminal windows
+### Usuarios de Windows
+1. Descarga el instalador MSI de: https://aka.ms/installazurecliwindows
+2. Ejecuta el archivo descargado y sigue el asistente de instalación
+3. Reinicia cualquier ventana de terminal que tengas abierta
 
-### Mac Users
-Option 1 - Using Homebrew (if you have it):
+### Usuarios de Mac
+Opción 1 - Usando Homebrew (si lo tienes):
 ```bash
 brew update && brew install azure-cli
 ```
 
-Option 2 - Direct install:
-1. Download the installer from: https://aka.ms/installazureclimacos
-2. Run the downloaded .pkg file
-3. Follow the installation wizard
+Opción 2 - Instalación directa:
+1. Descarga el instalador de: https://aka.ms/installazureclimacos
+2. Ejecuta el archivo .pkg descargado
+3. Sigue el asistente de instalación
 
-### Verify Installation (Both Platforms)
-Open a new terminal/command prompt and run:
+### Verifica la Instalación (Ambas Plataformas)
+Abre una nueva terminal o línea de comandos y ejecuta:
 ```bash
 az --version
 ```
 
-You should see version information. If not, restart your terminal.
+Deberías ver información de la versión. Si no, reinicia tu terminal.
 
-### Login to Azure CLI
-Now let's connect the CLI to your account:
+### Inicia sesión en Azure CLI
+Ahora vamos a conectar la CLI con tu cuenta:
 ```bash
 az login
 ```
 
-This will open your browser. Sign in with your Azure account.
+Esto abrirá tu navegador. Inicia sesión con tu cuenta de Azure.
 
 ---
 
-## Verifying Your Setup
+## Verificando tu Configuración
 
-Let's make sure everything is working:
+Vamos a asegurarnos de que todo funcione correctamente:
 
-### Using Azure Portal
-1. Go to https://portal.azure.com
-2. In the search bar, type your resource group name: `cyber-analyzer-rg`
-3. Click on it - you should see:
-   - Location matches what you selected
-   - No resources yet (that's correct!)
+### Usando el Portal de Azure
+1. Ve a https://portal.azure.com
+2. En la barra de búsqueda, escribe el nombre de tu grupo de recursos: `cyber-analyzer-rg`
+3. Haz clic en él - deberías ver:
+   - La localización coincide con la elegida
+   - Sin recursos aún (¡esto es correcto!)
 
-### Using Azure CLI
-Run these commands:
+### Usando Azure CLI
+Ejecuta estos comandos:
 ```bash
-# List your subscriptions
+# Lista tus suscripciones
 az account list --output table
 
-# List your resource groups
+# Lista tus grupos de recursos
 az group list --output table
 ```
 
-You should see your subscription and the `cyber-analyzer-rg` resource group.
+Deberías ver tu suscripción y el grupo de recursos `cyber-analyzer-rg`.
 
 ---
 
-## What's Next?
+## ¿Qué sigue?
 
-Congratulations! Your Azure account is now ready. You have:
-- ✅ An Azure account with credits
-- ✅ Cost alerts configured
-- ✅ A resource group for our project
-- ✅ Azure CLI installed and configured
+¡Felicidades! Tu cuenta de Azure ya está lista. Ahora tienes:
+- ✅ Una cuenta de Azure con créditos
+- ✅ Alertas de costo configuradas
+- ✅ Un grupo de recursos para nuestro proyecto
+- ✅ Azure CLI instalada y configurada
 
-In the next guide, we'll:
-1. Create an Azure Container Registry
-2. Push our Docker image
-3. Deploy to Azure Container Apps
-4. Configure environment variables securely
-
----
-
-## Troubleshooting
-
-### "Subscription not found" errors
-- Make sure you're signed into the correct account
-- Ensure your account setup is complete
-- Try signing out and back in
-
-### Region selection issues
-- Some regions may not have all services
-- Stick to major regions (US East, West Europe, etc.)
-- All resources in a group should use the same region
-
-### CLI installation problems
-- Windows: Run installer as Administrator
-- Mac: Make sure you have admin permissions
-- Both: Restart your terminal after installation
-
-### Still stuck?
-- Azure Portal has a **"?"** help button (top-right)
-- Live chat support is available for most issues
-- Check your school's IT resources - they may have Azure guides
+En la próxima guía:
+1. Crearemos un Azure Container Registry
+2. Subiremos nuestra imagen Docker
+3. Desplegaremos en Azure Container Apps
+4. Configuraremos variables de entorno de forma segura
 
 ---
 
-## Cost Saving Tips 💰
+## Resolución de Problemas
 
-1. **Always delete resources** when done with labs
-2. **Use the smallest tier** for learning (we'll show you how)
-3. **Set up budget alerts** (which you just did!)
-4. **Check Cost Management weekly** to understand your spending
-5. **Use free tiers** whenever available
+### Errores de "Subscription not found"
+- Asegúrate de iniciar sesión con la cuenta correcta
+- Verifica que hayas completado la configuración de la cuenta
+- Prueba cerrar sesión y volver a entrar
 
-Remember: Container Apps charges only while running, making it perfect for learning!
+### Problemas eligiendo región
+- Algunas regiones pueden no tener todos los servicios
+- Usa regiones principales (US East, West Europe, etc.)
+- Todos los recursos de un grupo deben usar la misma región
+
+### Problemas instalando la CLI
+- Windows: Ejecuta el instalador como Administrador
+- Mac: Asegúrate de tener permisos de administrador
+- Ambos: Reinicia la terminal después de instalar
+
+### ¿Sigues atascado?
+- El Portal de Azure tiene un botón de ayuda **"?"** (arriba a la derecha)
+- Hay soporte por chat en vivo para la mayoría de los problemas
+- Consulta los recursos IT de tu escuela, pueden tener guías de Azure
+
+---
+
+## Consejos de Ahorro de Costos 💰
+
+1. **Elimina siempre los recursos** cuando termines los laboratorios
+2. **Usa la tarifa más baja** para aprender (te mostraremos cómo)
+3. **Configura alertas de presupuesto** (¡que ya acabas de hacer!)
+4. **Revisa Cost Management semanalmente** para entender tus gastos
+5. **Usa niveles gratuitos** siempre que sea posible
+
+Recuerda: Los Container Apps sólo cobran mientras están en ejecución, ¡lo cual es perfecto para aprender!

@@ -1,23 +1,23 @@
 # Cyber-Security Agent
 
-## A Code Analyzer via Semgrep MCP server for Azure and GCP
+## Un Analizador de Código a través del servidor Semgrep MCP para Azure y GCP
 
-![Course Image](assets/cyber.png)
+![Imagen del curso](assets/cyber.png)
 
-_If you're looking at this in Cursor, please right click on the filename in the Explorer on the left, and select "Open preview", to view it in formatted glory._
+_Si estás viendo esto en Cursor, haz clic derecho en el nombre del archivo en el explorador a la izquierda y selecciona "Open preview" para verlo con formato._
 
-### Welcome to the Week 3 Days 1 and 2 project..
+### Bienvenido al proyecto de los Días 1 y 2 de la Semana 3.
 
-Please clone this repo:
+Por favor clona este repositorio:
 
 ```bash
 git clone https://github.com/ed-donner/cyber.git
 ```
 
-Then open this as a project in Cursor; then head into the week3 directory and start with guide "day1.part0" - right click and select "Open Preview".
+Luego, ábrelo como un proyecto en Cursor; después ve al directorio week3 y comienza con la guía "day1.part0" - haz clic derecho y selecciona "Open Preview".
 
-#### Keep in mind
+#### Ten en cuenta
 
-- Please submit your community_contributions, including links to your repos, in the production repo community_contributions folder
-- Regularly do a git pull to get the latest code
-- Reach out in Udemy or email (ed@edwarddonner.com) if I can help!
+- Por favor, entrega tus community_contributions, incluyendo enlaces a tus repositorios, en la carpeta community_contributions del repositorio de producción
+- Haz git pull regularmente para obtener el código más actualizado
+- Escribe en Udemy o por correo (ed@edwarddonner.com) si puedo ayudarte

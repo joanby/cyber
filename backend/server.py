@@ -12,17 +12,17 @@ from mcp_servers import create_semgrep_server
 
 load_dotenv()
 
-app = FastAPI(title="Cybersecurity Analyzer API")
+app = FastAPI(title="API de Analizador de Ciberseguridad")
 
-# Configure CORS for development and production
+# Configurar CORS para desarrollo y producción
 cors_origins = [
-    "http://localhost:3000",    # Local development
-    "http://frontend:3000",     # Docker development
+    "http://localhost:3000",    # Desarrollo local
+    "http://frontend:3000",     # Desarrollo con Docker
 ]
 
-# In production, allow same-origin requests (static files served from same domain)
+# En producción, permitir solicitudes del mismo origen (archivos estáticos servidos desde el mismo dominio)
 if os.getenv("ENVIRONMENT") == "production":
-    cors_origins.append("*")  # Allow all origins in production since we serve frontend from same domain
+    cors_origins.append("*")  # Permitir todos los orígenes en producción ya que servimos el frontend desde el mismo dominio
 
 app.add_middleware(
     CORSMiddleware,
@@ -38,37 +38,37 @@ class AnalyzeRequest(BaseModel):
 
 
 class SecurityIssue(BaseModel):
-    title: str = Field(description="Brief title of the security vulnerability")
+    title: str = Field(description="Título breve de la vulnerabilidad de seguridad")
     description: str = Field(
-        description="Detailed description of the security issue and its potential impact"
+        description="Descripción detallada del problema de seguridad y su posible impacto"
     )
     code: str = Field(
-        description="The specific vulnerable code snippet that demonstrates the issue"
+        description="El fragmento específico de código vulnerable que muestra el problema"
     )
-    fix: str = Field(description="Recommended code fix or mitigation strategy")
-    cvss_score: float = Field(description="CVSS score from 0.0 to 10.0 representing severity")
-    severity: str = Field(description="Severity level: critical, high, medium, or low")
+    fix: str = Field(description="Reparación o estrategia de mitigación recomendada para el código")
+    cvss_score: float = Field(description="Puntaje CVSS de 0.0 a 10.0 que indica la gravedad")
+    severity: str = Field(description="Nivel de severidad: crítico, alto, medio o bajo")
 
 
 class SecurityReport(BaseModel):
-    summary: str = Field(description="Executive summary of the security analysis")
-    issues: List[SecurityIssue] = Field(description="List of identified security vulnerabilities")
+    summary: str = Field(description="Resumen ejecutivo del análisis de seguridad")
+    issues: List[SecurityIssue] = Field(description="Lista de vulnerabilidades de seguridad identificadas")
 
 
 def validate_request(request: AnalyzeRequest) -> None:
-    """Validate the analysis request."""
+    """Valida la solicitud de análisis."""
     if not request.code.strip():
-        raise HTTPException(status_code=400, detail="No code provided for analysis")
+        raise HTTPException(status_code=400, detail="No se proporcionó código para analizar")
 
 
 def check_api_keys() -> None:
-    """Verify required API keys are configured."""
+    """Verifica que las claves de API requeridas estén configuradas."""
     if not os.getenv("OPENAI_API_KEY"):
-        raise HTTPException(status_code=500, detail="OpenAI API key not configured")
+        raise HTTPException(status_code=500, detail="No se configuró la clave de API de OpenAI")
 
 
 def create_security_agent(semgrep_server) -> Agent:
-    """Create and configure the security analysis agent."""
+    """Crea y configura el agente de análisis de seguridad."""
     return Agent(
         name="Security Researcher",
         instructions=SECURITY_RESEARCHER_INSTRUCTIONS,
@@ -79,7 +79,7 @@ def create_security_agent(semgrep_server) -> Agent:
 
 
 async def run_security_analysis(code: str) -> SecurityReport:
-    """Execute the security analysis workflow."""
+    """Ejecuta el flujo de trabajo de análisis de seguridad."""
     with trace("Security Researcher"):
         async with create_semgrep_server() as semgrep:
             agent = create_security_agent(semgrep)
@@ -88,7 +88,7 @@ async def run_security_analysis(code: str) -> SecurityReport:
 
 
 def format_analysis_response(code: str, report: SecurityReport) -> SecurityReport:
-    """Format the final analysis response."""
+    """Da formato a la respuesta final de análisis."""
     enhanced_summary = enhance_summary(len(code), report.summary)
     return SecurityReport(summary=enhanced_summary, issues=report.issues)
 
@@ -96,10 +96,10 @@ def format_analysis_response(code: str, report: SecurityReport) -> SecurityRepor
 @app.post("/api/analyze", response_model=SecurityReport)
 async def analyze_code(request: AnalyzeRequest) -> SecurityReport:
     """
-    Analyze Python code for security vulnerabilities using OpenAI Agents and Semgrep.
+    Analiza código Python en busca de vulnerabilidades de seguridad usando OpenAI Agents y Semgrep.
 
-    This endpoint combines static analysis via Semgrep with AI-powered security analysis
-    to provide comprehensive vulnerability detection and remediation guidance.
+    Este endpoint combina análisis estático mediante Semgrep con análisis de seguridad potenciado por IA
+    para proporcionar detección integral de vulnerabilidades y orientación para su remediación.
     """
     validate_request(request)
     check_api_keys()
@@ -108,17 +108,17 @@ async def analyze_code(request: AnalyzeRequest) -> SecurityReport:
         report = await run_security_analysis(request.code)
         return format_analysis_response(request.code, report)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"El análisis falló: {str(e)}")
 
 
 @app.get("/health")
 async def health():
-    """Health check endpoint."""
-    return {"message": "Cybersecurity Analyzer API"}
+    """Endpoint de verificación de estado (health check)."""
+    return {"message": "API de Analizador de Ciberseguridad"}
 
 @app.get("/network-test")
 async def network_test():
-    """Test network connectivity to Semgrep API."""
+    """Prueba la conectividad de red con la API de Semgrep."""
     import httpx
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
@@ -136,13 +136,13 @@ async def network_test():
 
 @app.get("/semgrep-test")
 async def semgrep_test():
-    """Test if semgrep CLI can be installed and run."""
+    """Prueba si el CLI de semgrep puede ser instalado y ejecutado."""
     import subprocess
     import tempfile
     import os
     
     try:
-        # Test if we can install semgrep via pip
+        # Prueba si podemos instalar semgrep usando pip
         result = subprocess.run(
             ["pip", "install", "semgrep"], 
             capture_output=True, 
@@ -153,10 +153,10 @@ async def semgrep_test():
         if result.returncode != 0:
             return {
                 "semgrep_install": False,
-                "error": f"Install failed: {result.stderr}"
+                "error": f"Instalación fallida: {result.stderr}"
             }
         
-        # Test if semgrep --version works
+        # Prueba si semgrep --version funciona
         version_result = subprocess.run(
             ["semgrep", "--version"], 
             capture_output=True, 
@@ -174,7 +174,7 @@ async def semgrep_test():
     except subprocess.TimeoutExpired:
         return {
             "semgrep_install": False,
-            "error": "Timeout during semgrep installation or version check"
+            "error": "Tiempo de espera superado durante la instalación o verificación de semgrep"
         }
     except Exception as e:
         return {
@@ -182,7 +182,7 @@ async def semgrep_test():
             "error": str(e)
         }
 
-# Mount static files for frontend
+# Montar archivos estáticos para el frontend
 if os.path.exists("static"):
     app.mount("/", StaticFiles(directory="static", html=True), name="static")
 

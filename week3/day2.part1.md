@@ -1,298 +1,298 @@
-# Day 2 Part 1: Google Cloud Platform Setup Guide
+# Día 2 Parte 1: Guía de Configuración de Google Cloud Platform
 
-This guide will walk you through setting up your Google Cloud Platform (GCP) account and preparing it for deploying containerized applications. All instructions work for Windows, Mac, and Linux users.
+Esta guía te llevará paso a paso en la configuración de tu cuenta de Google Cloud Platform (GCP) y en la preparación para desplegar aplicaciones contenerizadas. Todas las instrucciones funcionan para usuarios de Windows, Mac y Linux.
 
-## Table of Contents
-1. [Creating Your GCP Account](#creating-your-gcp-account)
-2. [Understanding GCP's Structure](#understanding-gcps-structure)
-3. [Creating Your First Project](#creating-your-first-project)
-4. [Setting Up Billing](#setting-up-billing)
-5. [Setting Up Cost Management](#setting-up-cost-management)
-6. [Installing Google Cloud CLI](#installing-google-cloud-cli)
-7. [Verifying Your Setup](#verifying-your-setup)
-
----
-
-## Creating Your GCP Account
-
-### GCP Free Trial
-1. Navigate to https://cloud.google.com/free
-2. Click **"Get started for free"**
-3. Sign in with your Google account (or create one)
-4. You'll need to provide:
-   - Country
-   - Account type (Individual)
-   - A credit card (for identity verification - you won't be charged)
-   - Phone number for verification
-5. You'll receive:
-   - $300 credit valid for 90 days
-   - Always Free tier services (even after trial ends)
-   - No auto-charge after trial ends
-
-> **Note**: Unlike Azure, GCP will NOT automatically charge your card when the trial ends. You must manually upgrade to a paid account.
-
-⚠️ **Important**: After creating your account, you'll be redirected to the Google Cloud Console at https://console.cloud.google.com
+## Tabla de Contenidos
+1. [Creando tu Cuenta de GCP](#creating-your-gcp-account)
+2. [Entendiendo la Estructura de GCP](#understanding-gcps-structure)
+3. [Creando tu Primer Proyecto](#creating-your-first-project)
+4. [Configurando la Facturación](#setting-up-billing)
+5. [Configurando la Gestión de Costes](#setting-up-cost-management)
+6. [Instalando Google Cloud CLI](#installing-google-cloud-cli)
+7. [Verificando tu Configuración](#verifying-your-setup)
 
 ---
 
-## Understanding GCP's Structure
+## Creando tu Cuenta de GCP
 
-Before we create resources, let's understand GCP's hierarchy:
+### Prueba gratuita de GCP
+1. Ve a https://cloud.google.com/free
+2. Haz clic en **"Get started for free"**
+3. Inicia sesión con tu cuenta de Google (o crea una)
+4. Deberás proporcionar:
+   - País
+   - Tipo de cuenta (Individual)
+   - Una tarjeta de crédito (solo para verificación de identidad - no se te cobrará)
+   - Número de teléfono para verificación
+5. Recibirás:
+   - $300 de crédito válido por 90 días
+   - Servicios del nivel siempre gratis (incluso después de que la prueba termine)
+   - No habrá cobros automáticos al terminar la prueba
+
+> **Nota**: A diferencia de Azure, GCP NO cobrará automáticamente tu tarjeta al acabar la prueba gratuita. Debes actualizar manualmente tu cuenta para pasar a paga.
+
+⚠️ **Importante**: Tras crear tu cuenta, serás redirigido a la Consola de Google Cloud en https://console.cloud.google.com
+
+---
+
+## Entendiendo la Estructura de GCP
+
+Antes de crear recursos, vamos a entender la jerarquía de GCP:
 
 ```
-Google Account (Your Gmail)
-  └── Organization (optional, for businesses)
-      └── Billing Account (Your payment method)
-          └── Project (e.g., "cyber-analyzer")
-              └── Resources (Cloud Run, Artifact Registry, etc.)
+Cuenta de Google (Tu Gmail)
+  └── Organización (opcional, para empresas)
+      └── Billing Account (Tu método de pago)
+          └── Proyecto (ej: "cyber-analyzer")
+              └── Recursos (Cloud Run, Artifact Registry, etc.)
 ```
 
-Think of:
-- **Billing Account**: Your payment method (can fund multiple projects)
-- **Project**: A container for all your resources (similar to Azure's Resource Group)
-- **Resources**: The actual services you create
+Piensa en:
+- **Billing Account**: Tu método de pago (puede usarse en varios proyectos)
+- **Project**: Un contenedor para todos tus recursos (similar al Resource Group de Azure)
+- **Resources**: Los servicios reales que creas
 
 ---
 
-## Creating Your First Project
+## Creando tu Primer Proyecto
 
-GCP requires a project to organize resources. Let's create one:
+GCP requiere un proyecto para organizar los recursos. Vamos a crear uno:
 
-1. In the Google Cloud Console (https://console.cloud.google.com)
-2. At the top of the page, click the project dropdown (might say "My First Project")
-3. Click **"NEW PROJECT"** in the dialog
-4. Fill in the details:
+1. En la Consola de Google Cloud (https://console.cloud.google.com)
+2. En la parte superior de la página, haz clic en el desplegable de proyectos (quizás diga "My First Project")
+3. Haz clic en **"NEW PROJECT"** en el diálogo
+4. Completa los detalles:
    - **Project name**: `cyber-analyzer`
-   - **Organization**: Leave the default value
-   - **Location**: Leave the default value
+   - **Organization**: Deja el valor por defecto
+   - **Location**: Deja el valor por defecto
    
-   💡 **Note**: GCP will auto-generate a unique Project ID based on your project name (shown in gray text under the name field). Write this down - you'll need it for CLI commands!
+   💡 **Nota**: GCP generará automáticamente un Project ID único basado en el nombre de tu proyecto (aparece en gris debajo del campo de nombre). Apúntalo: lo necesitarás en comandos de la CLI.
 
-5. Click **"CREATE"**
-6. Wait about 30 seconds for creation
-7. Make sure your new project is selected in the top dropdown
+5. Haz clic en **"CREATE"**
+6. Espera unos 30 segundos para la creación
+7. Asegúrate de que tu nuevo proyecto está seleccionado en el desplegable superior
 
-🎉 You've created your first project!
-
----
-
-## Setting Up Billing
-
-Even with free credits, you need to link your billing account to the project:
-
-1. In the Console, click the **"☰"** menu (top-left)
-2. Navigate to **"Billing"**
-3. If prompted, link your billing account to the project
-4. Verify you see your $300 credit balance
+🎉 ¡Has creado tu primer proyecto!
 
 ---
 
-## Setting Up Cost Management
+## Configurando la Facturación
 
-Let's set up budget alerts to avoid surprises:
+Incluso con créditos gratuitos, necesitas vincular tu cuenta de facturación al proyecto:
 
-1. In the Console menu **"☰"**, navigate to **"Billing"**
-2. Click **"Budgets & alerts"** in the left menu
-3. Click **"CREATE BUDGET"**
-4. Configure your budget:
+1. En la consola, haz clic en el menú **"☰"** (arriba a la izquierda)
+2. Navega a **"Billing"**
+3. Si se solicita, vincula tu cuenta de facturación al proyecto
+4. Verifica que ves tu saldo de $300 en créditos
+
+---
+
+## Configurando la Gestión de Costes
+
+Vamos a configurar alertas de presupuesto para evitar sorpresas:
+
+1. En el menú **"☰"** de la consola, navega a **"Billing"**
+2. Haz clic en **"Budgets & alerts"** en el menú de la izquierda
+3. Haz clic en **"CREATE BUDGET"**
+4. Configura tu presupuesto:
    - **Name**: `Monthly Training Budget`
-   - **Projects**: Select `cyber-analyzer`
-   - Click **"Next"**
-5. Set the amount:
+   - **Projects**: Selecciona `cyber-analyzer`
+   - Haz clic en **"Next"**
+5. Establece el monto:
    - **Budget type**: Specified amount
    - **Amount**: `$10`
    - **Time period**: Monthly
-   - Click **"Next"**
-6. Set up alerts:
-   - Default thresholds are good (50%, 90%, 100%)
-   - Check **"Email alerts to billing admins"**
-   - Optionally add your email under "Email recipients"
-   - Click **"Finish"**
+   - Haz clic en **"Next"**
+6. Configura las alertas:
+   - Los umbrales por defecto están bien (50%, 90%, 100%)
+   - Marca **"Email alerts to billing admins"**
+   - Opcional: añade tu correo electrónico bajo "Email recipients"
+   - Haz clic en **"Finish"**
 
-✅ Now you'll get email alerts before spending too much!
+✅ ¡Ahora recibirás alertas por correo antes de gastar demasiado!
 
 ---
 
-## Installing Google Cloud CLI
+## Instalando Google Cloud CLI
 
-The gcloud CLI is essential for deployment operations and working with containerized applications.
+La CLI de gcloud es esencial para operaciones de despliegue y trabajar con aplicaciones contenerizadas.
 
-### Windows Users
+### Usuarios de Windows
 
-Option 1 - Using the installer:
-1. Download the installer from: https://cloud.google.com/sdk/docs/install#windows
-2. Run the downloaded `GoogleCloudSDKInstaller.exe`
-3. Follow the installation wizard (accept all defaults)
-4. The installer will automatically open a new command prompt
+Opción 1 - Usando el instalador:
+1. Descarga el instalador desde: https://cloud.google.com/sdk/docs/install#windows
+2. Ejecuta el archivo `GoogleCloudSDKInstaller.exe` descargado
+3. Sigue el asistente de instalación (acepta todas las opciones por defecto)
+4. El instalador abrirá automáticamente una nueva ventana de terminal
 
-Option 2 - Using PowerShell (requires admin):
+Opción 2 - Usando PowerShell (requiere permisos de administrador):
 ```powershell
 (New-Object Net.WebClient).DownloadFile("https://dl.google.com/dl/cloudsdk/channels/rapid/GoogleCloudSDKInstaller.exe", "$env:Temp\GoogleCloudSDKInstaller.exe")
 & $env:Temp\GoogleCloudSDKInstaller.exe
 ```
 
-### Mac Users
+### Usuarios de Mac
 
-Option 1 - Using Homebrew (if you have it):
+Opción 1 - Usando Homebrew (si lo tienes instalado):
 ```bash
 brew install --cask google-cloud-sdk
 ```
 
-Option 2 - Direct install:
+Opción 2 - Instalación directa:
 ```bash
-# Download and run the install script
+# Descargar y ejecutar el script de instalación
 curl https://sdk.cloud.google.com | bash
-# Restart your shell
+# Reinicia tu terminal
 exec -l $SHELL
 ```
 
-### Linux Users
+### Usuarios de Linux
 
-For most distributions:
+Para la mayoría de distribuciones:
 ```bash
-# Download and run the install script
+# Descargar y ejecutar el script de instalación
 curl https://sdk.cloud.google.com | bash
-# Restart your shell
+# Reinicia tu terminal
 exec -l $SHELL
 ```
 
-For Ubuntu/Debian with apt:
+Para Ubuntu/Debian con apt:
 ```bash
 echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
 sudo apt-get update && sudo apt-get install google-cloud-cli
 ```
 
-### Initialize gcloud (All Platforms)
+### Inicializar gcloud (Todas las plataformas)
 
-1. Open a new terminal/command prompt
-2. Run:
+1. Abre una nueva terminal o línea de comandos
+2. Ejecuta:
 ```bash
 gcloud init
 ```
 
-3. Follow the prompts:
-   - Choose **"Y"** to log in
-   - Your browser will open - sign in with your Google account
-   - Choose your project (`cyber-analyzer`)
-   - Choose a default region when prompted:
-     - US: `us-central1` or `us-east1`
-     - Europe: `europe-west1` or `europe-north1`
-     - Asia: `asia-southeast1` or `asia-northeast1`
+3. Sigue las indicaciones:
+   - Elige **"Y"** para iniciar sesión
+   - Se abrirá tu navegador, inicia sesión con tu cuenta de Google
+   - Elige tu proyecto (`cyber-analyzer`)
+   - Elige una región por defecto cuando te lo pregunte:
+     - US: `us-central1` o `us-east1`
+     - Europa: `europe-west1` o `europe-north1`
+     - Asia: `asia-southeast1` o `asia-northeast1`
    
-   💡 **Pro tip**: Remember this region! We'll use it for Cloud Run.
+   💡 **Consejo**: ¡Recuerda esta región! La usaremos para Cloud Run.
 
 ---
 
-## Verifying Your Setup
+## Verificando tu Configuración
 
-Let's make sure everything is working:
+Vamos a asegurar que todo funciona correctamente:
 
-### Using Google Cloud Console
-1. Go to https://console.cloud.google.com
-2. Ensure `cyber-analyzer` is selected in the project dropdown
-3. Click the **"☰"** menu and go to **"Cloud Run"**
-4. You should see an empty list (that's correct!)
+### Usando Google Cloud Console
+1. Ve a https://console.cloud.google.com
+2. Asegúrate de que `cyber-analyzer` esté seleccionado en el desplegable de proyectos
+3. Haz clic en el menú **"☰"** y ve a **"Cloud Run"**
+4. Debes ver una lista vacía (¡eso es correcto!)
 
-### Using gcloud CLI
-Run these commands:
+### Usando gcloud CLI
+Ejecuta estos comandos:
 ```bash
-# Show current configuration
+# Muestra la configuración actual
 gcloud config list
 
-# List available projects
+# Lista los proyectos disponibles
 gcloud projects list
 
-# Show current project
+# Muestra el proyecto actual
 gcloud config get-value project
 
-# Test API access
+# Prueba el acceso a la API
 gcloud services list --enabled
 ```
 
-You should see:
-- Your project ID (`cyber-analyzer-xxxxx`)
-- Your selected region
-- A list of enabled APIs
+Deberías ver:
+- Tu Project ID (`cyber-analyzer-xxxxx`)
+- Tu región seleccionada
+- Una lista de APIs habilitadas
 
-### Enable Required APIs
-Cloud Run needs specific APIs enabled. Run:
+### Habilitar APIs necesarias
+Cloud Run necesita ciertas APIs activadas. Ejecuta:
 ```bash
 gcloud services enable run.googleapis.com containerregistry.googleapis.com cloudbuild.googleapis.com
 ```
 
-This enables:
-- Cloud Run API (for deployments)
-- Container Registry API (for storing images)
-- Cloud Build API (for building containers)
+Esto activa:
+- Cloud Run API (para despliegues)
+- Container Registry API (para almacenar imágenes)
+- Cloud Build API (para construir contenedores)
 
 ---
 
-## What's Next?
+## ¿Qué sigue?
 
-Congratulations! Your GCP account is now ready. You have:
-- ✅ A GCP account with $300 in credits
-- ✅ A project configured for our application
-- ✅ Budget alerts configured
-- ✅ gcloud CLI installed and authenticated
-- ✅ Required APIs enabled
+¡Felicidades! Tu cuenta de GCP ya está lista. Ahora tienes:
+- ✅ Una cuenta de GCP con $300 en créditos
+- ✅ Un proyecto configurado para nuestra aplicación
+- ✅ Alertas de presupuesto configuradas
+- ✅ gcloud CLI instalada y autenticada
+- ✅ APIs requeridas habilitadas
 
-In the next guide, we'll:
-1. Push our Docker image to Artifact Registry
-2. Deploy to Cloud Run
-3. Configure environment variables securely
-4. Set up a custom domain (optional)
+En la próxima guía, vamos a:
+1. Subir nuestra imagen Docker a Artifact Registry
+2. Desplegar en Cloud Run
+3. Configurar las variables de entorno de forma segura
+4. Configurar un dominio personalizado (opcional)
 
 ---
 
-## Troubleshooting
+## Solución de Problemas
 
-### "Permission denied" errors
-- Make sure you selected the correct project
-- Ensure APIs are enabled (see Enable Required APIs section)
-- Try: `gcloud auth login` to refresh credentials
+### Errores de "Permission denied"
+- Asegúrate de haber seleccionado el proyecto correcto
+- Confirma que las APIs están habilitadas (ver sección de Habilitar APIs necesarias)
+- Prueba: `gcloud auth login` para refrescar credenciales
 
-### Billing account issues
-- Free trial requires a valid credit card
-- Billing must be linked to the project
-- Check: `gcloud beta billing projects describe cyber-analyzer`
+### Problemas con la cuenta de facturación
+- La prueba gratuita requiere una tarjeta válida
+- La facturación debe estar vinculada al proyecto
+- Verifica con: `gcloud beta billing projects describe cyber-analyzer`
 
-### CLI installation problems
-- Windows: Run installer as Administrator
-- Mac/Linux: Ensure you have curl installed
-- All: Restart your terminal after installation
+### Problemas con la instalación de CLI
+- Windows: Ejecuta el instalador como Administrador
+- Mac/Linux: Asegúrate de tener instalado curl
+- Todos: Reinicia tu terminal tras la instalación
 
 ### Project ID vs Project Name
-- Project Name: Human-friendly (e.g., "cyber-analyzer")
-- Project ID: Globally unique (e.g., "cyber-analyzer-123456")
-- Use Project ID in commands
+- Project Name: Nombre amigable (ej: "cyber-analyzer")
+- Project ID: Identificador globalmente único (ej: "cyber-analyzer-123456")
+- Usa el Project ID en los comandos
 
-### Still stuck?
-- GCP Console has a **"?"** help button (top-right)
-- Cloud Shell (in-browser terminal) is available as backup
-- Community support at https://cloud.google.com/community
-
----
-
-## Cost Saving Tips 💰
-
-1. **Cloud Run charges only when running** - perfect for learning!
-2. **Delete unused resources** immediately after labs
-3. **Use minimum instances** (we'll set this to 0)
-4. **Monitor costs weekly** in the Billing section
-5. **Set up budget alerts** (which you just did!)
-
-### Free Tier Highlights
-Even after your $300 credit expires, you get:
-- Cloud Run: 2 million requests/month free
-- Cloud Storage: 5GB free
-- Cloud Build: 120 build-minutes/day free
-
-Remember: Unlike Azure Container Apps, Cloud Run can truly scale to zero, meaning zero cost when not in use!
+### ¿Sigues atascado?
+- La consola de GCP tiene un botón de ayuda **"?"** (arriba a la derecha)
+- Cloud Shell (terminal en el navegador) está disponible como respaldo
+- Soporte comunitario en https://cloud.google.com/community
 
 ---
 
-## Quick Command Reference
+## Consejos para Ahorrar Costos 💰
+
+1. **Cloud Run solo cobra mientras está en ejecución**: ¡perfecto para aprender!
+2. **Elimina los recursos no usados** inmediatamente después de los labs
+3. **Usa instancias mínimas** (configuraremos esto en 0)
+4. **Monitorea los costos semanalmente** en la sección de Billing
+5. **Configura alertas de presupuesto** (¡lo acabas de hacer!)
+
+### Lo gratis de la capa Always Free
+Incluso después de agotar tus $300 de crédito, tienes:
+- Cloud Run: 2 millones de requests/mes gratis
+- Cloud Storage: 5GB gratis
+- Cloud Build: 120 minutos de builds/día gratis
+
+Recuerda: A diferencia de Azure Container Apps, Cloud Run puede escalar realmente a cero, ¡así que no hay costo cuando no está en uso!
+
+---
+
+## Referencia Rápida de Comandos
 
 ```bash
 # Login
@@ -312,4 +312,4 @@ gcloud run --help
 gcloud billing accounts list
 ```
 
-Keep this guide handy - we'll reference these commands in the deployment guide!
+Ten esta guía a mano: vamos a referenciar estos comandos en la guía de despliegue.

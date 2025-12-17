@@ -1,106 +1,106 @@
-# Day 1 Part 0: Getting Started with the Cybersecurity Analyzer
+# Día 1 Parte 0: Empezando con el Cybersecurity Analyzer
 
-Welcome to Week 3 of AI in Production! Over the next two days, you'll deploy a real AI application to both Azure and Google Cloud Platform. By the end of Day 2, you'll have hands-on experience with modern cloud deployment practices used in production environments.
+¡Bienvenido a la Semana 3 de IA en Producción! Durante los próximos dos días, desplegarás una aplicación de IA real tanto en Azure como en Google Cloud Platform. Al final del Día 2, tendrás experiencia práctica con prácticas modernas de despliegue en la nube utilizadas en entornos de producción.
 
-## What You'll Build
+## Qué vas a construir
 
-The **Cybersecurity Analyzer** is an AI-powered web application that analyzes Python code for security vulnerabilities. It combines:
-- OpenAI's latest models for intelligent code analysis
-- Semgrep for static security scanning
-- A React/Next.js frontend
-- A FastAPI backend
-- Docker containerization
-- Cloud deployment with Terraform
+El **Cybersecurity Analyzer** es una aplicación web potenciada por IA que analiza código Python buscando vulnerabilidades de seguridad. Combina:
+- Los modelos más recientes de OpenAI para análisis inteligente de código
+- Semgrep para escaneo de seguridad estático
+- Un frontend en React/Next.js
+- Un backend en FastAPI
+- Contenerización con Docker
+- Despliegue en la nube con Terraform
 
-This is a real-world application architecture that you'll see in production environments!
+¡Esta es una arquitectura de aplicación real que verás en entornos de producción!
 
 ---
 
-## Section 1: Project Setup
+## Sección 1: Configuración del Proyecto
 
-### Clone the Repository
+### Clona el Repositorio
 
-If you haven't already cloned the repository, do so now:
+Si aún no has clonado el repositorio, hazlo ahora:
 
 ```bash
 git clone https://github.com/ed-donner/cyber.git
 ```
 
-### Open in Cursor
+### Abrir en Cursor
 
-1. Launch Cursor
-2. Click **File** → **New Window**
-3. Click **Open Folder**
-4. Navigate to and select the `cyber` folder you just cloned
-5. Click **Open**
+1. Lanza Cursor
+2. Haz clic en **Archivo** → **Nueva ventana**
+3. Haz clic en **Abrir carpeta**
+4. Navega y selecciona la carpeta `cyber` que acabas de clonar
+5. Haz clic en **Abrir**
 
-You should now see the project structure in Cursor's file explorer on the left.
+Ahora deberías ver la estructura del proyecto en el explorador de archivos de Cursor, a la izquierda.
 
-Take a moment to explore the structure:
-- `frontend/` - Next.js React application
-- `backend/` - FastAPI Python server
-- `terraform/` - Infrastructure as Code configurations
-- `week3/` - These guides you're reading!
+Tómate un momento para explorar la estructura:
+- `frontend/` - Aplicación React con Next.js
+- `backend/` - Servidor Python con FastAPI
+- `terraform/` - Configuraciones de Infraestructura como Código
+- `week3/` - ¡Estas guías que estás leyendo!
 
 ---
 
-## Section 2: Semgrep Setup
+## Sección 2: Configuración de Semgrep
 
-Semgrep is a powerful static analysis tool that finds security vulnerabilities in code. Let's set up your account and get an API token.
+Semgrep es una herramienta poderosa de análisis estático que encuentra vulnerabilidades de seguridad en el código. Vamos a configurar tu cuenta y obtener un token API.
 
-### Create Your Semgrep Account
+### Crea tu cuenta de Semgrep
 
-1. Visit https://semgrep.dev
-2. Click **"Try Semgrep for free"** 
-3. Click **"Continue with GitHub"**
-4. Authorize Semgrep to connect with your GitHub account
+1. Visita https://semgrep.dev
+2. Haz clic en **"Try Semgrep for free"** 
+3. Haz clic en **"Continue with GitHub"**
+4. Autoriza a Semgrep para que se conecte con tu cuenta de GitHub
 
-### Generate Your API Token
+### Genera tu token API
 
-Once logged into Semgrep:
+Una vez dentro de Semgrep:
 
-1. Click **Settings** (bottom left corner of the dashboard)
-2. In the main navigation, click **Tokens**
-3. Click **"Create New Token"**
-4. Configure the token:
-   - **Name**: `cyber-analyzer` (or any name you prefer)
-   - **Scopes**: Check both:
+1. Haz clic en **Settings** (abajo a la izquierda del panel)
+2. En la navegación principal, haz clic en **Tokens**
+3. Haz clic en **"Create New Token"**
+4. Configura el token:
+   - **Name**: `cyber-analyzer` (o cualquier nombre que prefieras)
+   - **Scopes**: Marca ambas:
      - ✅ **Agent (CI)**
      - ✅ **Web API**
-5. Click **"Create"**
-6. **IMPORTANT**: Copy the token immediately! You won't be able to see it again.
-   - It will look something like: `eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...`
+5. Haz clic en **"Create"**
+6. **IMPORTANTE**: ¡Copia el token inmediatamente! No podrás verlo de nuevo.
+   - Se verá algo como: `eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...`
 
-Keep this token handy - you'll need it in the next section.
+Guarda este token a mano, lo necesitarás en la próxima sección.
 
 ---
 
-## Section 3: Environment Configuration
+## Sección 3: Configuración de Entorno
 
-Now let's create your `.env` file with the necessary API keys.
+Ahora crea tu archivo `.env` con las claves API necesarias.
 
-### Create the .env File
+### Crea el archivo .env
 
-1. In Cursor, right-click on the project root (the `cyber` folder in the file explorer)
-2. Select **"New File"**
-3. Name it exactly `.env` (yes, starting with a dot)
-4. Add the following content:
+1. En Cursor, haz clic derecho sobre la raíz del proyecto (la carpeta `cyber` en el explorador)
+2. Selecciona **"Nuevo archivo"**
+3. Nómbralo exactamente `.env` (sí, empezando con un punto)
+4. Agrega el siguiente contenido:
 
 ```
 OPENAI_API_KEY=your-openai-key-here
 SEMGREP_APP_TOKEN=your-semgrep-token-here
 ```
 
-5. Replace the placeholder values:
-   - `your-openai-key-here` - Your OpenAI API key from previous weeks
-   - `your-semgrep-token-here` - The Semgrep token you just created
-6. Save the file (`Cmd+S` on Mac, `Ctrl+S` on Windows/Linux)
+5. Reemplaza los valores de ejemplo:
+   - `your-openai-key-here` - Tu API key de OpenAI de semanas anteriores
+   - `your-semgrep-token-here` - El token de Semgrep que acabas de crear
+6. Guarda el archivo (`Cmd+S` en Mac, `Ctrl+S` en Windows/Linux)
 
-⚠️ **Security Note**: The `.env` file is already in `.gitignore`, so it won't be committed to Git. Never share these keys publicly!
+⚠️ **Nota de Seguridad**: El archivo `.env` ya está en `.gitignore`, así que no se subirá a Git. ¡Nunca compartas estas claves públicamente!
 
-### Verify Your Keys
+### Verifica tus claves
 
-Your `.env` file should look similar to this (but with your actual keys):
+Tu archivo `.env` debería verse similar a esto (pero con tus claves reales):
 ```
 OPENAI_API_KEY=sk-proj-abc123xyz...
 SEMGREP_APP_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGc...
@@ -108,41 +108,41 @@ SEMGREP_APP_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGc...
 
 ---
 
-## Section 4: Test Locally Without Docker
+## Sección 4: Prueba localmente sin Docker
 
-Let's verify everything works by running the application locally.
+Verifiquemos que todo funcione ejecutando la aplicación localmente.
 
-### Prerequisites Check
+### Verifica los prerrequisitos
 
-First, ensure you have the required tools:
+Primero, asegúrate de tener las herramientas necesarias:
 
 ```bash
-# Check Node.js (should be 20+)
+# Verifica Node.js (debería ser la versión 20 o superior)
 node --version
 
-# Check uv is installed (Python package manager)
+# Verifica que uv está instalado (gestor de paquetes de Python)
 uv --version
 ```
 
-If `uv` is not installed:
+Si `uv` no está instalado:
 ```bash
 # Mac/Linux
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Windows (in PowerShell as admin)
+# Windows (en PowerShell como administrador)
 irm https://astral.sh/uv/install.ps1 | iex
 ```
 
-### Start the Backend Server
+### Inicia el servidor backend
 
-Open a terminal in Cursor (Terminal → New Terminal) and run:
+Abre una terminal en Cursor (Terminal → Nueva Terminal) y ejecuta:
 
 ```bash
 cd backend
 uv run server.py
 ```
 
-You should see output like:
+Deberías ver una salida similar a:
 ```
 INFO:     Started server process [12345]
 INFO:     Waiting for application startup.
@@ -150,19 +150,19 @@ INFO:     Application startup complete.
 INFO:     Uvicorn running on http://127.0.0.1:8000
 ```
 
-The backend API is now running at http://localhost:8000
+La API del backend ahora está corriendo en http://localhost:8000
 
-### Start the Frontend Development Server
+### Inicia el servidor de desarrollo del frontend
 
-Open a **new terminal** in Cursor (keep the backend running) and run:
+Abre **una nueva terminal** en Cursor (mantén el backend corriendo) y ejecuta:
 
 ```bash
 cd frontend
-npm install  # First time only
+npm install  # Sólo la primera vez
 npm run dev
 ```
 
-You should see output like:
+Deberías ver una salida como:
 ```
   ▲ Next.js 15.x.x
   - Local:        http://localhost:3000
@@ -171,76 +171,76 @@ You should see output like:
 ✓ Ready in 2.1s
 ```
 
-### Test the Application
+### Prueba la aplicación
 
-1. Open your browser to http://localhost:3000
+1. Abre tu navegador en http://localhost:3000
    
-   **Important**: Use the `http://localhost:3000` URL, not the Network URL that Next.js displays. The application is configured to work with localhost in development mode.
+   **Importante**: Usa la URL `http://localhost:3000`, NO la Network URL que muestra Next.js. La aplicación está configurada para funcionar con localhost en modo desarrollo.
 
-2. You should see the Cybersecurity Analyzer interface
-3. Click **"Choose File"** and select the `airline.py` file from the project root
-   - This file contains intentional security vulnerabilities for testing
-4. Click **"Analyze Code"**
-5. You should see multiple security vulnerabilities detected!
+2. Deberías ver la interfaz de Cybersecurity Analyzer
+3. Haz clic en **"Choose File"** y selecciona el archivo `airline.py` de la raíz del proyecto
+   - Este archivo contiene vulnerabilidades de seguridad intencionadas para pruebas
+4. Haz clic en **"Analyze Code"**
+5. ¡Deberías ver múltiples vulnerabilidades de seguridad detectadas!
 
-### Stopping the Servers
+### Detener los servidores
 
-When you're done testing:
-- Backend: Press `Ctrl+C` in the backend terminal
-- Frontend: Press `Ctrl+C` in the frontend terminal
+Cuando termines de probar:
+- Backend: presiona `Ctrl+C` en la terminal del backend
+- Frontend: presiona `Ctrl+C` en la terminal del frontend
 
 ---
 
-## Section 5: Test with Docker
+## Sección 5: Prueba con Docker
 
-Now let's test the containerized version - exactly what we'll deploy to the cloud!
+Ahora probemos la versión contenerizada, ¡exactamente lo que desplegaremos en la nube!
 
-### Prerequisites Check
+### Verifica los prerrequisitos
 
-Ensure Docker is installed and running:
+Asegúrate de tener Docker instalado y corriendo:
 
 ```bash
 docker --version
-docker ps  # Should not error
+docker ps  # No debería mostrar error
 ```
 
-If Docker isn't installed, download it from https://docker.com/get-started
+Si Docker no está instalado, descárgalo desde https://docker.com/get-started
 
-### Build the Docker Image
+### Construye la imagen de Docker
 
-In a terminal at the project root:
+En una terminal en la raíz del proyecto:
 
 ```bash
 docker build -t cyber-analyzer .
 ```
 
-This will take 2-5 minutes the first time as it:
-- Downloads base images
-- Installs Python dependencies
-- Builds the Next.js frontend
-- Packages everything together
+Esto tomará entre 2 y 5 minutos la primera vez, ya que:
+- Descarga las imágenes base
+- Instala dependencias de Python
+- Construye el frontend de Next.js
+- Empaqueta todo junto
 
-You should see output ending with:
+Deberías ver una salida terminando así:
 ```
 Successfully tagged cyber-analyzer:latest
 ```
 
-### Run the Container
+### Ejecuta el contenedor
 
-Start the containerized application:
+Inicia la aplicación contenerizada:
 
 ```bash
 docker run --rm --name cyber-analyzer -p 8000:8000 --env-file .env cyber-analyzer
 ```
 
-Breaking down this command:
-- `--rm`: Remove container when stopped
-- `--name cyber-analyzer`: Name for easy reference
-- `-p 8000:8000`: Map port 8000
-- `--env-file .env`: Load environment variables
-- `cyber-analyzer`: Image name
+Desglose de este comando:
+- `--rm`: Elimina el contenedor al detenerlo
+- `--name cyber-analyzer`: Nombre fácil de referenciar
+- `-p 8000:8000`: Mapea el puerto 8000
+- `--env-file .env`: Carga variables de entorno
+- `cyber-analyzer`: Nombre de la imagen
 
-You'll see the server startup logs:
+Verás los logs de inicio del servidor:
 ```
 INFO:     Started server process [1]
 INFO:     Waiting for application startup.
@@ -248,51 +248,51 @@ INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000
 ```
 
-### Test the Container
+### Prueba el contenedor
 
-1. Open http://localhost:8000 in your browser
-2. Test by uploading the `airline.py` file from the project root
-3. You should see the same security analysis results as before
+1. Abre http://localhost:8000 en tu navegador
+2. Prueba subiendo el archivo `airline.py` desde la raíz del proyecto
+3. Deberías ver los mismos resultados de análisis de seguridad que antes
 
-### Stop the Container
+### Detén el contenedor
 
-When you're done testing, press `Ctrl+C` in the terminal to stop the container. It will be automatically removed (due to `--rm` flag).
+Cuando termines de probar, presiona `Ctrl+C` en la terminal para detener el contenedor. Se eliminará automáticamente (por el flag `--rm`).
 
 ---
 
-## Troubleshooting
+## Solución de problemas
 
-### "Module not found" or dependency errors
-- Ensure you're using `uv run` for the backend (not just `python`)
-- For frontend, run `npm install` before `npm run dev`
+### "Module not found" o errores de dependencias
+- Asegúrate de usar `uv run` para el backend (no sólo `python`)
+- Para el frontend, ejecuta `npm install` antes de `npm run dev`
 
 ### "Port already in use"
-- Check for other processes: `lsof -i :8000` (Mac/Linux) or `netstat -ano | findstr :8000` (Windows)
-- Kill any conflicting processes or use different ports
+- Comprueba otros procesos: `lsof -i :8000` (Mac/Linux) o `netstat -ano | findstr :8000` (Windows)
+- Mata cualquier proceso en conflicto o usa otros puertos
 
-### Docker build fails
-- Ensure Docker Desktop is running
-- Check available disk space: `docker system df`
-- Clean up if needed: `docker system prune -a` (warning: removes all unused images)
+### Falla la construcción con Docker
+- Asegúrate de que Docker Desktop esté ejecutándose
+- Comprueba espacio libre en disco: `docker system df`
+- Limpia si es necesario: `docker system prune -a` (advertencia: elimina todas las imágenes no usadas)
 
-### Environment variables not working
-- Verify `.env` file is in project root (not in backend/ or frontend/)
-- Check there are no spaces around the `=` in your `.env` file
-- Ensure no quotes around the values unless they contain spaces
+### Las variables de entorno no funcionan
+- Verifica que el archivo `.env` esté en la raíz del proyecto (no en backend/ ni frontend/)
+- Asegúrate de no dejar espacios alrededor del `=` en tu archivo `.env`
+- No pongas comillas a los valores salvo que contengan espacios
 
 ---
 
-## What's Next?
+## ¿Qué sigue?
 
-🎉 **Congratulations!** You've successfully:
-- ✅ Set up the Cybersecurity Analyzer project
-- ✅ Configured Semgrep for security analysis
-- ✅ Created your environment configuration
-- ✅ Tested locally with both development servers
-- ✅ Built and ran the Docker container
+🎉 **¡Felicidades!** Has logrado:
+- ✅ Configurar el proyecto Cybersecurity Analyzer
+- ✅ Configurar Semgrep para análisis de seguridad
+- ✅ Crear tu configuración de entorno
+- ✅ Probar localmente con ambos servidores de desarrollo
+- ✅ Construir y ejecutar el contenedor Docker
 
-You're now ready to deploy this application to the cloud! 
+¡Ya estás listo para desplegar esta aplicación en la nube!
 
-**Next up**: [Day 1 Part 1: Azure Setup](./day1.part1.md) where you'll create your Azure account and prepare for cloud deployment.
+**Próximo paso**: [Día 1 Parte 1: Configuración en Azure](./day1.part1.md) donde crearás tu cuenta de Azure y te prepararás para el despliegue en la nube.
 
-The application you just tested locally will soon be running on Azure Container Apps and Google Cloud Run, accessible from anywhere in the world!
+La aplicación que acabas de probar localmente pronto estará corriendo en Azure Container Apps y Google Cloud Run, ¡accesible desde cualquier lugar del mundo!

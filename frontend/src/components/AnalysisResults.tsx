@@ -1,7 +1,7 @@
 import { AnalysisResultsProps } from '@/types/security';
 
 /**
- * Get color classes for severity badges
+ * Obtiene las clases de color para las insignias de severidad
  */
 function getSeverityColor(severity: string): string {
   switch (severity) {
@@ -14,7 +14,7 @@ function getSeverityColor(severity: string): string {
 }
 
 /**
- * Analysis results display component with summary and issues table
+ * Componente para mostrar los resultados del análisis con resumen y tabla de problemas
  */
 export default function AnalysisResults({
   analysisResults,
@@ -24,7 +24,7 @@ export default function AnalysisResults({
   return (
     <div className="bg-white rounded-lg border border-border shadow-sm p-6 flex flex-col">
       <h2 className="text-lg font-semibold text-foreground mb-4 flex-shrink-0">
-        Results of Analysis
+        Resultados del análisis
       </h2>
       
       <div className="flex-1 overflow-auto">
@@ -36,24 +36,24 @@ export default function AnalysisResults({
         
         {!analysisResults && !error && (
           <div className="bg-gray-50 rounded-lg border border-border p-4 text-sm text-accent text-center">
-            {isAnalyzing ? 'Analyzing code...' : 'Upload and analyze Python code to see security assessment results here.'}
+            {isAnalyzing ? 'Analizando código...' : 'Sube y analiza código Python para ver aquí los resultados del análisis de seguridad.'}
           </div>
         )}
         
         {analysisResults && (
           <div className="space-y-6">
-            {/* Summary */}
+            {/* Resumen */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-semibold text-blue-900 mb-2">Analysis Summary</h3>
+              <h3 className="font-semibold text-blue-900 mb-2">Resumen del análisis</h3>
               <p className="text-blue-800 text-sm">{analysisResults.summary}</p>
             </div>
             
-            {/* Issues Table */}
+            {/* Tabla de problemas */}
             {analysisResults.issues.length > 0 && (
               <div className="border border-border rounded-lg overflow-hidden">
                 <div className="bg-gray-50 px-4 py-3 border-b border-border">
                   <h3 className="font-semibold text-foreground">
-                    Security Issues Found ({analysisResults.issues.length})
+                    Problemas de seguridad encontrados ({analysisResults.issues.length})
                   </h3>
                 </div>
                 
@@ -62,22 +62,22 @@ export default function AnalysisResults({
                     <thead className="bg-gray-100">
                       <tr>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                          Issue
+                          Problema
                         </th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                          Severity
+                          Severidad
                         </th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                           CVSS
                         </th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                          Description
+                          Descripción
                         </th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                          Vulnerable Code
+                          Código vulnerable
                         </th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                          Recommended Fix
+                          Solución recomendada
                         </th>
                       </tr>
                     </thead>

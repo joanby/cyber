@@ -1,7 +1,7 @@
 import { FileUploadProps } from '@/types/security';
 
 /**
- * File upload button component for selecting Python files
+ * Componente de botón para subir archivos y seleccionar archivos Python
  */
 export default function FileUpload({ 
   fileName, 
@@ -30,7 +30,7 @@ export default function FileUpload({
         htmlFor="file-upload"
         className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors font-medium"
       >
-        Open python file...
+        Abrir archivo Python...
       </label>
       
       <button
@@ -38,7 +38,7 @@ export default function FileUpload({
         disabled={!hasCode || isAnalyzing}
         className="bg-accent hover:bg-accent/90 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg transition-colors font-medium"
       >
-        {isAnalyzing ? 'Analyzing...' : 'Analyze code'}
+        {isAnalyzing ? 'Analizando...' : 'Analizar código'}
       </button>
     </div>
   );

@@ -1,173 +1,173 @@
-# Project Context for Claude Code
+# Contexto del Proyecto para Código Claude
 
-## Overall context
-- This is a project being developed as part of Ed's course "AI in Production"
-- Ed is writing this code which thousands of students will clone; they will then follow the steps to deploy
-- Students may be on Windows PC, Mac or Linux; the instructions needs to work on all systems
-- This project is called Cybersecurity Analyzer - it runs an Agent
-- The project will be deployed locally with npm and uv run (working), also locally as a single Docker container (working), to Azure Container App (working), and to GCP Cloud Run (not started)
-- The project root is ~/projects/cyber
-- There is a .env file in the project root; you may not be able to see it for security reasons, but it's there, with OPENAI_API_KEY and SEMGREP_APP_TOKEN
+## Contexto general
+- Este es un proyecto desarrollado como parte del curso de Ed "AI in Production"
+- Ed está escribiendo este código que miles de estudiantes clonarás; posteriormente seguirán los pasos para desplegar
+- Los estudiantes pueden estar en Windows PC, Mac o Linux; las instrucciones deben funcionar en todos los sistemas
+- Este proyecto se llama Cybersecurity Analyzer - ejecuta un Agent
+- El proyecto se desplegará localmente con npm y uv run (funcionando), también localmente como un solo contenedor Docker (funcionando), en Azure Container App (funcionando), y en GCP Cloud Run (aún sin empezar)
+- La raíz del proyecto es ~/projects/cyber
+- Hay un archivo .env en la raíz del proyecto; puede que no puedas verlo por motivos de seguridad, pero está allí, con OPENAI_API_KEY y SEMGREP_APP_TOKEN
 
-## Project Overview
-Cybersecurity Analyzer - A web application for analyzing Python code for security vulnerabilities using AI-powered analysis with OpenAI and Semgrep.
+## Resumen del Proyecto
+Cybersecurity Analyzer - Una aplicación web para analizar código Python en busca de vulnerabilidades de seguridad usando análisis con IA a través de OpenAI y Semgrep.
 
-**Educational Purpose**: This project serves as a teaching tool for students learning cloud deployment on Azure and Google Cloud Platform. Students will gain hands-on experience deploying containerized applications using modern serverless platforms.
+**Propósito educativo**: Este proyecto sirve como herramienta didáctica para estudiantes aprendiendo a desplegar en la nube en Azure y Google Cloud Platform. Los estudiantes obtendrán experiencia práctica desplegando aplicaciones contenerizadas usando plataformas modernas serverless.
 
-## Architecture
-- **Frontend**: Next.js (React) with TypeScript, Tailwind CSS
-  - Located in `frontend/`
-  - Runs on port 3000 in development
-  - Built as static export for production
-- **Backend**: FastAPI with Python 3.12
-  - Located in `backend/`
-  - Runs on port 8000
-  - Uses OpenAI Agents SDK with Semgrep MCP server
+## Arquitectura
+- **Frontend**: Next.js (React) con TypeScript, Tailwind CSS
+  - Ubicado en `frontend/`
+  - Corre en el puerto 3000 en desarrollo
+  - Se construye como exportación estática para producción
+- **Backend**: FastAPI con Python 3.12
+  - Ubicado en `backend/`
+  - Corre en el puerto 8000
+  - Usa OpenAI Agents SDK con el servidor Semgrep MCP
 
-## Key Technical Decisions
+## Decisiones técnicas clave
 
-### Docker Deployment (July 31, 2025)
-- Simplified from multi-stage supervisor approach to single-stage deployment
-- Frontend is built as static export (`next export`) and served directly by FastAPI
-- Single container exposes port 8000 for both API and static files
-- Optimized for Google Cloud Run and Azure Container Instances
+### Despliegue Docker (31 de julio de 2025)
+- Simplificado de un enfoque supervisor de varias etapas a despliegue de una sola etapa
+- El frontend se construye como exportación estática (`next export`) y es servido directamente por FastAPI
+- Un solo contenedor expone el puerto 8000 tanto para la API como para los archivos estáticos
+- Optimizado para Google Cloud Run y Azure Container Instances
 
-### MCP Version Pinning (July 31, 2025)
-- **Issue**: MCP library updated from 1.12.2 to 1.12.3 on July 31, 2025
-- **Breaking Change**: FastMCP no longer accepts `version` parameter in constructor
-- **Solution**: Pin MCP to version 1.12.2 in `pyproject.toml` and use `uvx --with mcp==1.12.2` when launching semgrep-mcp
-- **Reason**: semgrep-mcp v0.4.1 still passes the `version` parameter, causing TypeError with MCP 1.12.3
+### Fijación de versión MCP (31 de julio de 2025)
+- **Problema**: La librería MCP se actualizó de la 1.12.2 a la 1.12.3 el 31 de julio de 2025
+- **Cambio incompatible**: FastMCP ya no acepta el parámetro `version` en el constructor
+- **Solución**: Fijar MCP a la versión 1.12.2 en `pyproject.toml` y usar `uvx --with mcp==1.12.2` al lanzar semgrep-mcp
+- **Razón**: semgrep-mcp v0.4.1 todavía pasa el parámetro `version`, causando TypeError con MCP 1.12.3
 
-## Development Setup
+## Configuración de Desarrollo
 
-### Environment Variables
-Required in `.env` file:
-- `OPENAI_API_KEY` - For OpenAI API access
-- `SEMGREP_APP_TOKEN` - For Semgrep analysis
+### Variables de entorno
+Requeridas en el archivo `.env`:
+- `OPENAI_API_KEY` - Para acceso a la API de OpenAI
+- `SEMGREP_APP_TOKEN` - Para análisis con Semgrep
 
-### Local Development
+### Desarrollo local
 ```bash
 # Backend
 cd backend
 uv run server.py
 
-# Frontend (in separate terminal)
+# Frontend (en terminal separada)
 cd frontend
 npm run dev
 ```
 
-### Docker Commands
+### Comandos Docker
 ```bash
-# Build
+# Construir
 docker build -t cyber-analyzer .
 
-# Run with env file
+# Ejecutar con archivo env
 docker run --rm -d --name cyber-analyzer -p 8000:8000 --env-file .env cyber-analyzer
 
-# Logs
+# Ver logs
 docker logs cyber-analyzer
 
-# Stop
+# Detener
 docker stop cyber-analyzer
 ```
 
-## Important Implementation Details
+## Detalles importantes de implementación
 
-1. **Static File Serving**: FastAPI serves the Next.js static export from the `static` directory. The `/health` endpoint must be defined before mounting static files to avoid route conflicts.
+1. **Servicio de archivos estáticos**: FastAPI sirve la exportación estática de Next.js desde el directorio `static`. El endpoint `/health` debe definirse antes de montar archivos estáticos para evitar conflictos de rutas.
 
-2. **API Routes**: All API endpoints are under `/api/` prefix (e.g., `/api/analyze`)
+2. **Rutas de la API**: Todos los endpoints de API están bajo el prefijo `/api/` (ejemplo: `/api/analyze`)
 
-3. **Frontend Configuration**: 
-   - `next.config.ts` uses `output: 'export'` for static generation
-   - `trailingSlash: true` for proper routing
-   - `images.unoptimized: true` for static export compatibility
+3. **Configuración del frontend**: 
+   - `next.config.ts` usa `output: 'export'` para generación estática
+   - `trailingSlash: true` para un enrutado adecuado
+   - `images.unoptimized: true` para compatibilidad con la exportación estática
 
-## Known Issues & Workarounds
+## Problemas conocidos y soluciones
 
-1. **MCP Version Compatibility**: Must use MCP 1.12.2 until semgrep-mcp is updated to remove the `version` parameter from FastMCP initialization.
+1. **Compatibilidad de versión MCP**: Se debe usar MCP 1.12.2 hasta que semgrep-mcp se actualice para quitar el parámetro `version` del inicializador de FastMCP.
 
-## Testing & Quality
-- Run `npm run lint` in frontend for linting
-- Run `npm run typecheck` in frontend for type checking
-- Backend uses `uv` for dependency management
+## Pruebas y calidad
+- Ejecuta `npm run lint` en frontend para linting
+- Ejecuta `npm run typecheck` en frontend para verificación de tipos
+- El backend usa `uv` para la gestión de dependencias
 
-## Future Considerations
-- Monitor semgrep-mcp updates for compatibility with MCP 1.12.3+
-- Consider adding automated tests
-- May need to adjust Docker health check timeout for cloud deployments
+## Consideraciones futuras
+- Monitorear actualizaciones de semgrep-mcp para compatibilidad con MCP 1.12.3+
+- Considerar añadir pruebas automatizadas
+- Puede ser necesario ajustar el timeout de healthcheck de Docker para despliegues en la nube
 
-## Cloud Deployment Project (Started July 31, 2025)
+## Proyecto de despliegue en la nube (Iniciado el 31 de julio de 2025)
 
-### Educational Objectives
-- Teach students practical cloud deployment skills on Azure and GCP
-- Compare/contrast serverless container platforms (Azure Container Apps vs Cloud Run)
-- Hands-on experience with Terraform for infrastructure as code
-- Understanding of cloud security, secrets management, and cost optimization
+### Objetivos educativos
+- Enseñar habilidades prácticas de despliegue en la nube en Azure y GCP a estudiantes
+- Comparar y contrastar plataformas serverless de contenedores (Azure Container Apps vs Cloud Run)
+- Experiencia práctica con Terraform para infraestructura como código
+- Comprender seguridad en la nube, gestión de secretos y optimización de costes
 
-### Deployment Strategy
-1. **Phase 1 - Azure Deployment**
-   - Azure Container Apps (serverless container platform)
-   - Azure Container Registry for image storage
-   - Azure Key Vault for secrets management
-   - Student accounts via Azure for Students ($100 credit)
+### Estrategia de despliegue
+1. **Fase 1 - Despliegue en Azure**
+   - Azure Container Apps (plataforma serverless de contenedores)
+   - Azure Container Registry para almacenamiento de imágenes
+   - Azure Key Vault para gestión de secretos
+   - Cuentas estudiantiles mediante Azure for Students (crédito de $100)
 
-2. **Phase 2 - GCP Deployment**
-   - Google Cloud Run (equivalent to Azure Container Apps)
-   - Artifact Registry for container images
-   - Secret Manager for environment variables
-   - Student accounts via GCP Free Tier + $300 credit
+2. **Fase 2 - Despliegue en GCP**
+   - Google Cloud Run (equivalente a Azure Container Apps)
+   - Artifact Registry para imágenes de contenedores
+   - Secret Manager para variables de entorno
+   - Cuentas estudiantiles mediante GCP Free Tier + crédito de $300
 
-3. **Infrastructure as Code**
-   - Terraform with workspaces to manage both clouds
-   - Modular design for reusable components
-   - Clear separation between Azure and GCP configurations
+3. **Infraestructura como código**
+   - Terraform con workspaces para gestionar ambas nubes
+   - Diseño modular para componentes reutilizables
+   - Separación clara entre las configuraciones de Azure y GCP
 
-### Teaching Approach
-- Start with Azure (less familiar to most students)
-- Progress to GCP for comparison
-- Focus on practical skills: account setup, cost management, security
-- Emphasis on understanding trade-offs between platforms
+### Enfoque didáctico
+- Comenzar por Azure (es menos familiar para la mayoría de estudiantes)
+- Avanzar a GCP para comparar
+- Enfoque en habilidades prácticas: creación de cuentas, gestión de costes, seguridad
+- Énfasis en comprender los compromisos y diferencias entre plataformas
 
-### Prerequisites Covered in Previous Classes
-- AWS App Runner deployment
-- Basic Terraform concepts
-- Container fundamentals
+### Prerrequisitos cubiertos en clases anteriores
+- Despliegue en AWS App Runner
+- Conceptos básicos de Terraform
+- Fundamentos de contenedores
 
-### Current Status (Updated July 31, 2025)
-- ✅ **Azure deployment completed** - Application successfully deployed to Azure Container Apps
-- ✅ **Docker image optimized** - Multi-stage build with ARM64→AMD64 cross-compilation for cloud compatibility
-- ✅ **Terraform deployment pipeline** - Working infrastructure-as-code setup with Azure workspace
-- ✅ **CORS and API routing resolved** - Frontend uses relative URLs in production, localhost in development
-- ✅ **MCP server issue RESOLVED** - Increased memory to 2.0Gi fixed Semgrep SIGKILL issue
+### Estado actual (Actualizado 31 de julio de 2025)
+- ✅ **Despliegue en Azure completado** - Aplicación desplegada exitosamente en Azure Container Apps
+- ✅ **Imagen Docker optimizada** - Build multi-etapa con compilación cruzada ARM64→AMD64 para compatibilidad en la nube
+- ✅ **Pipeline de despliegue Terraform** - Infraestructura como código funcionando con workspace de Azure
+- ✅ **CORS y routing API resueltos** - El frontend usa URLs relativas en producción, localhost en desarrollo
+- ✅ **Problema con servidor MCP RESUELTO** - Incrementar memoria a 2.0Gi solucionó el problema de Semgrep y SIGKILL
 
-### MCP Server Memory Issue - RESOLVED (July 31, 2025)
-**Issue**: Semgrep MCP server was getting SIGKILL (-9) on Azure when loading rule registry
-- `list_tools` worked but `semgrep_scan` failed with exit code -9
-- Process killed right after "Loading rules from registry..."
-- **Root cause**: Insufficient memory allocation (1.0Gi) 
-- **Solution**: Increased container memory from 1.0Gi to 2.0Gi and CPU from 0.5 to 1.0
-- **Verified**: Works on both Azure Container Apps and Azure Container Instances with 2GB RAM
-- **Status**: ACI test resources destroyed, but terraform config kept in `azure-aci/` for future reference
+### Problema de memoria del servidor MCP - RESUELTO (31 de julio de 2025)
+**Problema**: El servidor Semgrep MCP recibía SIGKILL (-9) en Azure al cargar el registro de reglas
+- `list_tools` funcionaba pero `semgrep_scan` fallaba con código de salida -9
+- El proceso se mataba justo después de "Loading rules from registry..."
+- **Causa raíz**: Asignación insuficiente de memoria (1.0Gi) 
+- **Solución**: Incrementar la memoria del contenedor de 1.0Gi a 2.0Gi y la CPU de 0.5 a 1.0
+- **Verificado**: Funciona en tanto Azure Container Apps como Azure Container Instances con 2GB de RAM
+- **Estado**: Recursos de prueba de ACI destruidos, pero la configuración de terraform se mantiene en `azure-aci/` para referencia futura
 
-**Key lesson**: Semgrep rule registry loading is memory-intensive and requires at least 2GB RAM in cloud environments
+**Lección clave**: Cargar el registro de reglas de Semgrep es intensivo en memoria y requiere al menos 2GB de RAM en entornos cloud
 
-### Key Deployment Lessons Learned
-1. **Terraform Docker Provider Limitations**: 
-   - Doesn't automatically detect source code changes
-   - Must use `terraform taint` to force rebuilds when code changes
-   - Using unique image tags can help avoid caching issues
+### Lecciones clave aprendidas en el despliegue
+1. **Limitaciones del proveedor Docker de Terraform**: 
+   - No detecta automáticamente cambios en el código fuente
+   - Se debe usar `terraform taint` para forzar reconstrucciones cuando cambia el código
+   - Usar tags únicos para las imágenes puede ayudar a evitar problemas de caché
 
-2. **Frontend API URL Configuration**:
-   - Next.js static export needs relative URLs for same-domain deployment
-   - Environment-based logic: localhost in dev, relative URLs in production
-   - CORS must allow wildcard origins when serving frontend from same domain
+2. **Configuración de la URL de la API en el frontend**:
+   - La exportación estática de Next.js necesita URLs relativas para despliegue en el mismo dominio
+   - Lógica basada en entorno: localhost en desarrollo, URLs relativas en producción
+   - CORS debe permitir orígenes wildcard al servir el frontend desde el mismo dominio
 
-3. **Azure Container Apps Behavior**:
-   - FQDN changes with each new revision (--0000001, --0000002, etc.)
-   - Apps scale to zero automatically, saving costs
-   - Logs accessible via `az containerapp logs show`
+3. **Comportamiento de Azure Container Apps**:
+   - El FQDN cambia con cada revisión nueva (--0000001, --0000002, etc.)
+   - Las apps escalan a cero automáticamente, ahorrando costes
+   - Los logs son accesibles vía `az containerapp logs show`
 
-4. **Cross-Platform Docker Builds**:
-   - M1 Mac builds ARM64 by default, Azure needs AMD64
-   - Solution: `platform = "linux/amd64"` in Terraform Docker build
-   - Slight performance penalty on M1 Macs but ensures compatibility
+4. **Builds Docker multiplataforma**:
+   - M1 Mac construye por defecto sobre ARM64, Azure necesita AMD64
+   - Solución: `platform = "linux/amd64"` en el build Docker de Terraform
+   - Ligera penalización en rendimiento en M1 Mac pero asegura compatibilidad

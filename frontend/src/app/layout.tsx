@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cybersecurity Analyst",
-  description: "Professional Python code analysis tool for cybersecurity analysis",
+  title: "Analista de Ciberseguridad",
+  description: "Herramienta profesional de análisis de código Python para análisis de ciberseguridad",
 };
 
 export default function RootLayout({
@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
